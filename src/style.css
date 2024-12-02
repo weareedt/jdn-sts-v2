@@ -85,7 +85,6 @@ body
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-
 .response
 {
     position: absolute;
@@ -102,4 +101,23 @@ body
     border-radius: 10px;
     z-index: 1000;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.webcam-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 240px;
+    height: 180px;
+    z-index: 1000;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.webcam-view {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

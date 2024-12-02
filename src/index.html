@@ -7,5 +7,28 @@
 </head>
 <body>
     <div id="root"></div>
+    <div class="webcam-container">
+        <video class="webcam-view" autoplay playsinline></video>
+    </div>
+    <script>
+        // Initialize webcam
+        async function initWebcam() {
+            try {
+                const video = document.querySelector('.webcam-view');
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: 240,
+                        height: 180
+                    } 
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing webcam:', err);
+            }
+        }
+
+        // Start webcam when page loads
+        window.addEventListener('load', initWebcam);
+    </script>
 </body>
 </html>
