@@ -23,6 +23,8 @@ uniform float uFresnelPower;
 uniform float uTime;
 
 varying vec3 vColor;
+varying vec3 vNormal;
+varying vec3 vViewDirection;
 
 #pragma glslify: perlin4d = require('../partials/perlin4d.glsl')
 #pragma glslify: perlin3d = require('../partials/perlin3d.glsl')
@@ -78,4 +80,6 @@ void main()
 
     // Varying
     vColor = color;
+    vNormal = computedNormal;
+    vViewDirection = viewDirection;
 }

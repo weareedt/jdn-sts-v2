@@ -251,7 +251,10 @@ export default class Sphere
                 USE_TANGENT: ''
             },
             vertexShader: vertexShader,
-            fragmentShader: fragmentShader
+            fragmentShader: fragmentShader,
+            transparent: true,
+            side: THREE.DoubleSide,
+            depthWrite: false
         })
 
         this.material.uniforms.uLightAPosition.value.setFromSpherical(this.lights.a.spherical)
