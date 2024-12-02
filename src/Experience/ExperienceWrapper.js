@@ -12,6 +12,7 @@ export default function ExperienceWrapper() {
   const [llmResponse, setLlmResponse] = useState('');
   const [error, setError] = useState('');
   const [isPTTActiveRef, setIsPTTActiveRef] = useState(false);
+  const [isGreeting, setIsGreeting] = useState(true);
 
   // Initialize Experience on component mount
   useEffect(() => {
@@ -68,15 +69,41 @@ export default function ExperienceWrapper() {
     queryLLM();
   }, [transcription]);
 
+  // Hide greeting when transcription and response are available
+  useEffect(() => {
+    if (transcription || llmResponse) {
+      setIsGreeting(false);
+    }
+  }, [transcription, llmResponse]);
+
   return (
     <>
       <div ref={containerRef}></div>
+      {isGreeting && (
+        <div
+          className="greeting"
+          style={{
+            position: 'fixed',
+            top: '20%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            fontSize: '30px',
+            overflowY: 'auto',
+            zIndex: 1000,
+            textAlign: 'center',
+          }}
+        >
+          Hi, Saya Terra. Ada apa-apa saya boleh bantu?
+        </div>
+      )}
       {llmResponse && (
         <div
           className="transcript"
           style={{
             position: 'fixed',
-            //background: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
@@ -93,7 +120,6 @@ export default function ExperienceWrapper() {
           className="response"
           style={{
             position: 'fixed',
-            //background: 'rgba(255, 255, 0, 0.7)',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
