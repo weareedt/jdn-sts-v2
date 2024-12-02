@@ -90,8 +90,7 @@ export default function ExperienceWrapper() {
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '30px',
-            overflowY: 'auto',
+            fontSize: '38px',
             zIndex: 1000,
             textAlign: 'center',
           }}
@@ -107,9 +106,9 @@ export default function ExperienceWrapper() {
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '30px',
+            fontSize: '38px',
             maxHeight: '150px',
-            overflowY: 'auto',
+            maxWidth:'1000px',
           }}
         >
           {transcription}
@@ -123,9 +122,9 @@ export default function ExperienceWrapper() {
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '30px',
+            fontSize: '38px',
             maxHeight: '150px',
-            overflowY: 'auto',
+            maxWidth:'1000px',
           }}
         >
           {llmResponse}
@@ -134,7 +133,7 @@ export default function ExperienceWrapper() {
       <div
         style={{
           position: 'fixed',
-          bottom: '15%',
+          bottom: '10%',
           left: '5%',
           display: 'flex',
           alignItems: 'center',
