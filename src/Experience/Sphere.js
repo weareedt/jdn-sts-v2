@@ -117,6 +117,7 @@ export default class Sphere
         {
             return 0.65
         }
+        
     }
 
     setLights()
@@ -326,7 +327,7 @@ export default class Sphere
         this.elapsedTime = this.time.delta * this.timeFrequency
 
         // Update material
-        this.material.uniforms.uDisplacementStrength.value = this.variations.volume.current
+        //this.material.uniforms.uDisplacementStrength.value = this.variations.volume.current //Comment this for idle animation
         this.material.uniforms.uDistortionStrength.value = this.variations.highLevel.current
         this.material.uniforms.uFresnelMultiplier.value = this.variations.mediumLevel.current
 
