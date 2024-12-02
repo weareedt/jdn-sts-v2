@@ -1,0 +1,129 @@
+/*!*****************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./src/style.css ***!
+  \*****************************************************************/
+@font-face {
+    font-family: 'Ailerons';
+    src: url(assets/fonts/53123d263cb63e4597b2.woff2) format('woff2'),
+        url(assets/fonts/1bb85400b660a657542f.woff) format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url(d1f5e6e16dd4f75c3950.otf) format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url(b1f4d2c69fa808ebca12.otf) format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url(037dc63930459813f575.otf) format('opentype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Text';
+    src: url(6a39aa208dfcb99af10a.otf) format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Text';
+    src: url(9ef3e7915275d9c15bbb.otf) format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+*
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*::selection
+{
+    background: #ffffff22;
+}
+
+html,
+body
+{
+    overflow: hidden;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.experience
+{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+}
+
+.transcript {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 24px;
+    text-align: center;
+    max-width: 80%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    z-index: 1000;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.response
+{
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 24px;
+    text-align: center;
+    max-width: 80%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    z-index: 1000;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.webcam-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 240px;
+    height: 180px;
+    z-index: 1000;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.webcam-view {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/*# sourceMappingURL=main.css.map*/
