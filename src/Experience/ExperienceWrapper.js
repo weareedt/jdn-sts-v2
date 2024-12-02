@@ -76,10 +76,11 @@ export default function ExperienceWrapper() {
           className="transcript"
           style={{
             position: 'fixed',
-            background: 'rgba(0, 0, 0, 0.7)',
+            //background: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
+            fontSize: '30px',
             maxHeight: '150px',
             overflowY: 'auto',
           }}
@@ -92,10 +93,11 @@ export default function ExperienceWrapper() {
           className="response"
           style={{
             position: 'fixed',
-            background: 'rgba(255, 255, 0, 0.7)',
+            //background: 'rgba(255, 255, 0, 0.7)',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
+            fontSize: '30px',
             maxHeight: '150px',
             overflowY: 'auto',
           }}
@@ -106,12 +108,13 @@ export default function ExperienceWrapper() {
       <div
         style={{
           position: 'fixed',
-          bottom: '20px',
+          bottom: '15%',
+          left: '5%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           width: '100%',
-          gap: '30px',
+          gap: '40px',
           zIndex: 1000,
         }}
       >

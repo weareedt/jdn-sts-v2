@@ -60,7 +60,7 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
+                placeholder="Apakah itu pendigitalan?"
                 disabled={isLoading}
                 style={{
                     padding: '12px 16px',
@@ -68,8 +68,8 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                     border: '2px solid #8B5CF6',
                     backgroundColor: isLoading ? '#2a2a2a' : '#1a1a1a',
                     color: 'white',
-                    fontSize: '16px',
-                    width: '300px',
+                    fontSize: '28px',
+                    width: '600px',
                     outline: 'none',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                     opacity: isLoading ? 0.7 : 1,
