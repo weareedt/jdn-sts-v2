@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import Experience from './Experience'
 import vertexShader from './shaders/sphere/vertex.glsl'
 import fragmentShader from './shaders/sphere/fragment.glsl'
+import AudioService from '../services/AudioService'
 
 export default class Sphere
 {
@@ -11,7 +12,6 @@ export default class Sphere
         this.debug = this.experience.debug
         this.scene = this.experience.scene
         this.time = this.experience.time
-        this.microphone = this.experience.microphone
 
         this.timeFrequency = 0.0003
         this.elapsedTime = 0
@@ -49,9 +49,10 @@ export default class Sphere
         this.variations.volume.downEasing = 0.002
         this.variations.volume.getValue = () =>
         {
-            const level0 = this.microphone.levels[0] || 0
-            const level1 = this.microphone.levels[1] || 0
-            const level2 = this.microphone.levels[2] || 0
+            const levels = AudioService.getLevels()
+            const level0 = levels[0] || 0
+            const level1 = levels[1] || 0
+            const level2 = levels[2] || 0
 
             return Math.max(level0, level1, level2) * 0.3
         }
@@ -67,7 +68,7 @@ export default class Sphere
         this.variations.lowLevel.downEasing = 0.002
         this.variations.lowLevel.getValue = () =>
         {
-            let value = this.microphone.levels[0] || 0
+            let value = AudioService.getLevels()[0] || 0
             value *= 0.003
             value += 0.0001
             value = Math.max(0, value)
@@ -86,7 +87,7 @@ export default class Sphere
         this.variations.mediumLevel.downEasing = 0.004
         this.variations.mediumLevel.getValue = () =>
         {
-            let value = this.microphone.levels[1] || 0
+            let value = AudioService.getLevels()[1] || 0
             value *= 2
             value += 3.587
             value = Math.max(3.587, value)
@@ -105,7 +106,7 @@ export default class Sphere
         this.variations.highLevel.downEasing = 0.001
         this.variations.highLevel.getValue = () =>
         {
-            let value = this.microphone.levels[2] || 0
+            let value = AudioService.getLevels()[2] || 0
             value *= 5
             value += 0.5
             value = Math.max(0.5, value)
@@ -314,7 +315,7 @@ export default class Sphere
         for(let _variationName in this.variations)
         {
             const variation = this.variations[_variationName]
-            variation.target = this.microphone.ready ? variation.getValue() : variation.getDefault()
+            variation.target = AudioService.isActive() ? variation.getValue() : variation.getDefault()
             
             const easing = variation.target > variation.current ? variation.upEasing : variation.downEasing
             variation.current += (variation.target - variation.current) * easing * this.time.delta

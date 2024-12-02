@@ -13,8 +13,10 @@ const client = new ElevenLabsClient({
 class ElevenLabsService {
     static async createAudioStreamFromText(text) {
         const audioStream = await client.generate({
-            voice: "Rachel",
-            model_id: "eleven_turbo_v2",
+            voice: "Afifah",
+            model_id: "eleven_turbo_v2.5",
+            stability: 1.0,
+            similarity_boost: 0.6,
             text,
         });
 
