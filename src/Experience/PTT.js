@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Microphone from './Microphone.js';
 
-export default function PTT({ setTranscription }) {
+export default function PTT({ setTranscription , setIsPTTActiveRef}) {
     const microphoneRef = useRef(null);
     const isPTTActiveRef = useRef(false);
     const [buttonState, setButtonState] = useState('idle');
@@ -67,6 +67,7 @@ export default function PTT({ setTranscription }) {
             microphoneRef.current.startRecording();
             setButtonState('recording');
             console.log('Push-to-talk activated');
+            setIsPTTActiveRef(true);
         }
     };
 

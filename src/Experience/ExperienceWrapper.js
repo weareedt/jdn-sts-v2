@@ -11,6 +11,7 @@ export default function ExperienceWrapper() {
   const [transcription, setTranscription] = useState('');
   const [llmResponse, setLlmResponse] = useState('');
   const [error, setError] = useState('');
+  const [isPTTActiveRef, setIsPTTActiveRef] = useState(false);
 
   // Initialize Experience on component mount
   useEffect(() => {
@@ -32,32 +33,35 @@ export default function ExperienceWrapper() {
   // Handle LLM query when transcription changes
   useEffect(() => {
     const queryLLM = async () => {
-
       if (!transcription.trim()) return;
 
-      try {
-        setError('');
-        // Get LLM response
-        const response = await ProxyService.post(transcription);
-        console.log('LLM response:', response.response.text);
-        setLlmResponse(response.response.text);
+      if (isPTTActiveRef) {
+        try {
+          setError('');
+          // Get LLM response
+          const response = await ProxyService.post(transcription);
+          console.log('LLM response:', response.response.text);
+          setLlmResponse(response.response.text);
 
-        // Get TTS audio for the response
-        const ttsResponse = await fetch('http://localhost:3001/api/tts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: response.response.text }),
-        });
+          // Get TTS audio for the response
+          const ttsResponse = await fetch('http://localhost:3001/api/tts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: response.response.text }),
+          });
 
-        console.log('TTS response:', ttsResponse);
+          console.log('TTS response:', ttsResponse);
 
-        const { audio } = await ttsResponse.json();
-        await AudioService.playAudio(audio);
-      } catch (error) {
-        console.error('LLM query error:', error);
-        setError(error.message);
+          const { audio } = await ttsResponse.json();
+          await AudioService.playAudio(audio);
+
+          setIsPTTActiveRef(false);
+        } catch (error) {
+          console.error('LLM query error:', error);
+          setError(error.message);
+        }
       }
     };
 
@@ -115,7 +119,10 @@ export default function ExperienceWrapper() {
           setTranscription={setTranscription}
           setLlmResponse={setLlmResponse}
         />
-        <PTT setTranscription={setTranscription} />
+        <PTT
+          setTranscription={setTranscription}
+          setIsPTTActiveRef={setIsPTTActiveRef}
+        />
       </div>
     </>
   );
