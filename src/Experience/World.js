@@ -15,9 +15,26 @@ export default class World
         {
             if(_group.name === 'base')
             {
+                this.setBackground()
                 this.setSphere()
             }
         })
+    }
+
+    setBackground()
+    {
+        const texture = this.resources.items.lennaTexture
+        if (texture) {
+            texture.encoding = THREE.sRGBEncoding
+            texture.generateMipmaps = false
+            texture.minFilter = THREE.LinearFilter
+            texture.magFilter = THREE.LinearFilter
+            texture.wrapS = THREE.ClampToEdgeWrapping
+            texture.wrapT = THREE.ClampToEdgeWrapping
+            this.scene.background = texture
+        } else {
+            console.warn('Background texture not loaded')
+        }
     }
 
     setSphere()
