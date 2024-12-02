@@ -13,6 +13,7 @@ export default function ExperienceWrapper() {
   const [error, setError] = useState('');
   const [isPTTActiveRef, setIsPTTActiveRef] = useState(false);
   const [isGreeting, setIsGreeting] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
 
   // Initialize Experience on component mount
   useEffect(() => {
@@ -75,6 +76,11 @@ export default function ExperienceWrapper() {
       setIsGreeting(false);
     }
   }, [transcription, llmResponse]);
+
+  // Toggle visibility of text input and buttons
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible);
+  };
 
   return (
     <>
