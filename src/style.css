@@ -1,11 +1,45 @@
-@font-face
-{
+@font-face {
     font-family: 'Ailerons';
     src: url('./fonts/subset-Ailerons-Regular.woff2') format('woff2'),
         url('./fonts/subset-Ailerons-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: block;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url('../public/fonts/SF-Pro-Display-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url('../public/fonts/SF-Pro-Display-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url('../public/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Text';
+    src: url('../public/fonts/SF-Pro-Text-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SF Pro Text';
+    src: url('../public/fonts/SF-Pro-Text-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
 }
 
 *
@@ -24,6 +58,7 @@ html,
 body
 {
     overflow: hidden;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .experience
@@ -39,7 +74,7 @@ body
     left: 50%;
     transform: translateX(-50%);
     color: #ffffff;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 24px;
     text-align: center;
     max-width: 80%;
