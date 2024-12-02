@@ -4,6 +4,7 @@ import { Pane } from 'tweakpane'
 import Time from './Utils/Time.js'
 import Sizes from './Utils/Sizes.js'
 import Stats from './Utils/Stats.js'
+import EventEmitter from './Utils/EventEmitter.js'
 
 import Resources from './Resources.js'
 import Renderer from './Renderer.js'
@@ -13,12 +14,14 @@ import World from './World.js'
 import assets from './assets.js'
 import Microphone from './Microphone.js'
 
-export default class Experience
+export default class Experience extends EventEmitter
 {
     static instance
 
     constructor(_options = {})
     {
+        super()
+        
         if(Experience.instance)
         {
             return Experience.instance
@@ -27,6 +30,7 @@ export default class Experience
 
         // Options
         this.targetElement = _options.targetElement
+        this.setTranscription = _options.setTranscription
 
         if(!this.targetElement)
         {
@@ -111,7 +115,7 @@ export default class Experience
 
     setMicrohopne()
     {
-        this.microphone = new Microphone()
+        this.microphone = new Microphone(this.setTranscription)
     }
 
     setWorld()
@@ -158,13 +162,21 @@ export default class Experience
 
         if(this.world)
             this.world.resize()
-
-        if(this.world)
-            this.world.resize()
     }
 
     destroy()
     {
-        
+        if(this.microphone)
+        {
+            if(this.microphone.recorder)
+            {
+                this.microphone.stopRecording()
+            }
+            // Clean up audio context
+            if(this.microphone.audioContext)
+            {
+                this.microphone.audioContext.close()
+            }
+        }
     }
 }

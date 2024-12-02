@@ -39,6 +39,8 @@ class MesoliticaService {
             }
 
             const data = await response.json();
+
+            console.log('Transcription result:', data);
             return data;
         } catch (error) {
             console.error('Transcription error:', error);

@@ -17,7 +17,6 @@
 
 *::selection
 {
-    /* color: #aaaaaa; */
     background: #ffffff22;
 }
 
@@ -34,35 +33,19 @@ body
     height: 100vh;
 }
 
-.credits
-{
+.transcript {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
     color: #ffffff;
-    text-align: right;
     font-family: 'Roboto', sans-serif;
-}
-
-.credits a
-{
-    color: inherit;
-}
-
-.title
-{
-    position: absolute;
-    top: calc(50% - 14vmin / 2);
-    left: 0;
-    width: 100%;
-    color: #ffffff;
-    font-size: 14vmin;
-    text-transform: uppercase;
+    font-size: 24px;
     text-align: center;
-    outline: none;
-    font-family: 'Ailerons', Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    max-width: 80%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    z-index: 1000;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }

@@ -3,8 +3,8 @@ import MesoliticaService from '../services/MesoliticaService.js'
 import RecordRTC from 'recordrtc'
 
 export default class Microphone {
-    constructor() {
-        this.experience = new Experience()
+    constructor(setTranscription) {
+        this.experience = Experience.instance
         this.debug = this.experience.debug
         this.ready = false
         this.volume = 0
@@ -13,6 +13,7 @@ export default class Microphone {
         this.recorder = null
         this.recordingInterval = null
         this.transcription = ''
+        this.setTranscription = setTranscription
 
         navigator.mediaDevices
             .getUserMedia({ 
@@ -31,6 +32,9 @@ export default class Microphone {
                 if (this.debug) {
                     this.setSpectrum()
                 }
+            })
+            .catch((error) => {
+                console.error('Error accessing microphone:', error)
             })
     }
 
@@ -58,11 +62,13 @@ export default class Microphone {
                 if (blob && blob.size > 0) {
                     try {
                         const transcription = await MesoliticaService.transcribeAudioStream(blob)
-                        if (transcription && transcription.text) {
-                            this.transcription = transcription.text
-                            // Emit transcription event for other components to use
-                            this.experience.trigger('transcriptionUpdate', this.transcription)
-                            console.log('Transcription:', this.transcription)
+                        if (transcription && this.setTranscription) {
+                            this.transcription = transcription
+                            console.log('Microphone received transcription:', this.transcription)
+                            // Directly update the transcription state
+                            this.setTranscription(prevTranscription => {
+                                return this.transcription
+                            })
                         }
                     } catch (error) {
                         console.error('Transcription error:', error)
@@ -79,6 +85,7 @@ export default class Microphone {
         if (!this.isRecording && this.recorder) {
             this.isRecording = true
             this.recorder.startRecording()
+            console.log('Recording started')
         }
     }
 
