@@ -326,10 +326,11 @@ export default class Sphere
         this.timeFrequency = this.variations.lowLevel.current
         this.elapsedTime = this.time.delta * this.timeFrequency
 
+        //Comment these for idle animation
         // Update material
-        //this.material.uniforms.uDisplacementStrength.value = this.variations.volume.current //Comment this for idle animation
-        this.material.uniforms.uDistortionStrength.value = this.variations.highLevel.current
-        this.material.uniforms.uFresnelMultiplier.value = this.variations.mediumLevel.current
+        //this.material.uniforms.uDisplacementStrength.value = this.variations.volume.current 
+        //this.material.uniforms.uDistortionStrength.value = this.variations.highLevel.current
+        //this.material.uniforms.uFresnelMultiplier.value = this.variations.mediumLevel.current
 
         // Offset
         const offsetTime = this.elapsedTime * 0.3
