@@ -3,9 +3,8 @@ import MesoliticaService from '../services/MesoliticaService.js'
 import RecordRTC from 'recordrtc'
 
 export default class Microphone {
-    constructor(setTranscription, pttButton) {
-        this.experience = Experience.instance
-        this.debug = this.experience.debug
+    constructor(setTranscription) {
+        this.debug = false // Default to false if Experience not available
         this.ready = false
         this.volume = 0
         this.levels = []
@@ -14,27 +13,11 @@ export default class Microphone {
         this.recorder = null
         this.transcription = ''
         this.setTranscription = setTranscription
-        this.isPTTActive = false
-        this.pttButton = pttButton
 
-        // Define SVG icons
-        this.icons = {
-            idle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>`,
-            recording: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>`,
-            processing: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 6v6l4 2"></path>
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>`
+        // Try to get Experience instance if available
+        if (Experience.instance) {
+            this.experience = Experience.instance
+            this.debug = this.experience.debug
         }
 
         navigator.mediaDevices
@@ -60,27 +43,6 @@ export default class Microphone {
             })
     }
 
-    updateButtonState(state) {
-        this.pttButton.innerHTML = this.icons[state]
-        switch(state) {
-            case 'recording':
-                this.pttButton.style.backgroundColor = '#6D28D9' // Dark purple
-                this.pttButton.style.transform = 'translateX(-50%) scale(0.95)'
-                break
-            case 'processing':
-                this.pttButton.style.backgroundColor = '#7C3AED' // Medium purple
-                this.pttButton.style.transform = 'translateX(-50%) scale(1)'
-                // Add rotation animation for processing state
-                this.pttButton.style.animation = 'spin 2s linear infinite'
-                break
-            default: // idle
-                this.pttButton.style.backgroundColor = '#8B5CF6' // Light purple
-                this.pttButton.style.transform = 'translateX(-50%) scale(1)'
-                this.pttButton.style.animation = 'none'
-                break
-        }
-    }
-
     init() {
         this.audioContext = new AudioContext()
         this.mediaStreamSourceNode = this.audioContext.createMediaStreamSource(this.stream)
@@ -90,16 +52,6 @@ export default class Microphone {
         this.floatTimeDomainData = new Float32Array(this.analyserNode.fftSize)
         this.byteFrequencyData = new Uint8Array(this.analyserNode.fftSize)
         this.ready = true
-
-        // Add CSS for rotation animation
-        const style = document.createElement('style')
-        style.textContent = `
-            @keyframes spin {
-                from { transform: translateX(-50%) rotate(0deg); }
-                to { transform: translateX(-50%) rotate(360deg); }
-            }
-        `
-        document.head.appendChild(style)
     }
 
     setupRecording() {
@@ -111,44 +63,6 @@ export default class Microphone {
             numberOfAudioChannels: 1,
             desiredSampRate: 16000
         })
-
-        // Add button event listeners for push-to-talk
-        this.pttButton.addEventListener('mousedown', () => {
-            if (!this.isPTTActive && !this.isProcessing) {
-                this.isPTTActive = true
-                this.startRecording()
-                this.updateButtonState('recording')
-                console.log('Push-to-talk activated')
-            }
-        })
-
-        this.pttButton.addEventListener('mouseup', () => {
-            if (this.isPTTActive) {
-                this.isPTTActive = false
-                this.stopRecording()
-                console.log('Push-to-talk deactivated')
-            }
-        })
-
-        this.pttButton.addEventListener('mouseleave', () => {
-            if (this.isPTTActive) {
-                this.isPTTActive = false
-                this.stopRecording()
-                console.log('Push-to-talk deactivated')
-            }
-        })
-
-        // Handle page visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && this.isPTTActive) {
-                this.isPTTActive = false
-                this.stopRecording()
-                console.log('Push-to-talk deactivated due to page visibility change')
-            }
-        })
-
-        // Set initial state
-        this.updateButtonState('idle')
     }
 
     async processRecording(blob) {
@@ -161,8 +75,6 @@ export default class Microphone {
 
         try {
             this.isProcessing = true
-            this.updateButtonState('processing')
-            
             const transcription = await MesoliticaService.transcribeAudioStream(blob)
             
             if (transcription && this.setTranscription) {
@@ -173,17 +85,13 @@ export default class Microphone {
                 } else {
                     this.transcription = transcription
                     console.log('Microphone received transcription:', this.transcription)
-                    this.setTranscription(prevTranscription => {
-                        return this.transcription
-                    })
+                    this.setTranscription(this.transcription)
                 }
             }
         } catch (error) {
             console.error('Transcription error:', error)
         } finally {
             this.isProcessing = false
-            this.updateButtonState('idle')
-            // Setup new recorder for next recording
             this.setupRecording()
         }
     }

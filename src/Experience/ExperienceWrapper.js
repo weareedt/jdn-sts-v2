@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Experience from './Experience.js';
 import ProxyService from '../services/ProxyService.js';
 import AudioService from '../services/AudioService.js';
 import TextInput from './TextInput.js';
+import PTT from './PTT.js';
 
 export default function ExperienceWrapper() {
   const containerRef = useRef(null);
@@ -11,6 +12,7 @@ export default function ExperienceWrapper() {
   const [llmResponse, setLlmResponse] = useState('');
   const [error, setError] = useState('');
 
+  // Initialize Experience on component mount
   useEffect(() => {
     if (containerRef.current && !experienceRef.current) {
       experienceRef.current = new Experience({
@@ -27,8 +29,10 @@ export default function ExperienceWrapper() {
     };
   }, []);
 
+  // Handle LLM query when transcription changes
   useEffect(() => {
     const queryLLM = async () => {
+
       if (!transcription.trim()) return;
 
       try {
@@ -62,8 +66,8 @@ export default function ExperienceWrapper() {
 
   return (
     <>
-      <>
-        <div ref={containerRef}></div>
+      <div ref={containerRef}></div>
+      {llmResponse && (
         <div
           className="transcript"
           style={{
@@ -78,6 +82,8 @@ export default function ExperienceWrapper() {
         >
           {transcription}
         </div>
+      )}
+      {llmResponse && (
         <div
           className="response"
           style={{
@@ -92,24 +98,25 @@ export default function ExperienceWrapper() {
         >
           {llmResponse}
         </div>
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            gap: '40px',
-            zIndex: 1000,
-          }}
-        >
-          <TextInput
-            setTranscription={setTranscription}
-            setLlmResponse={setLlmResponse}
-          />
-        </div>
-      </>
+      )}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          gap: '30px',
+          zIndex: 1000,
+        }}
+      >
+        <TextInput
+          setTranscription={setTranscription}
+          setLlmResponse={setLlmResponse}
+        />
+        <PTT setTranscription={setTranscription} />
+      </div>
     </>
   );
 }
