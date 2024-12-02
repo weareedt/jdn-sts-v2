@@ -161,19 +161,23 @@ export default function ExperienceWrapper() {
         </div>
       )}
       <button
-        onClick={toggleVisibility}
-        style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          padding: '10px 20px',
-          backgroundColor: '#8B5CF6',
-          color: 'white',
-          border: 'none',
-          borderRadius: '50%',
-          cursor: 'pointer',
-          zIndex: 1000,
-        }}
+    onClick={toggleVisibility}
+    style={{
+      position: 'fixed',
+        bottom: '10px',
+        right: '10px',
+        width: '50px', 
+        height: '50px', 
+        backgroundColor: '#8B5CF6',
+        color: 'white',
+        border: 'none',
+        borderRadius: '50%', 
+        cursor: 'pointer',
+        zIndex: 1000,
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center'
+    }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
