@@ -1,6 +1,6 @@
 class ProxyService {
     static async post(message) {
-        const response = await fetch('http://localhost:3001/api/forward_message', {
+        const response = await fetch('http://jdn-relay.hiroshiaki.online:3001/api/forward_message', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
