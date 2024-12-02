@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Experience from './Experience.js';
 import ProxyService from '../services/ProxyService.js';
 import AudioService from '../services/AudioService.js';
+import TextInput from './TextInput.js';
 
 export default function ExperienceWrapper() {
   const containerRef = useRef(null);
@@ -90,6 +91,23 @@ export default function ExperienceWrapper() {
           }}
         >
           {llmResponse}
+        </div>
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            gap: '40px',
+            zIndex: 1000,
+          }}
+        >
+          <TextInput
+            setTranscription={setTranscription}
+            setLlmResponse={setLlmResponse}
+          />
         </div>
       </>
     </>

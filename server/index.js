@@ -19,7 +19,7 @@ app.use(express.json());
 app.post('/api/tts', async (req, res) => {
     try {
         const { text } = req.body;
-        const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel voice ID
+        const voiceId = "djUbJhnXETnX31p3rgun"; // Rachel voice ID
 
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
             method: 'POST',
@@ -31,10 +31,8 @@ app.post('/api/tts', async (req, res) => {
             body: JSON.stringify({
                 text: text,
                 model_id: "eleven_multilingual_v2",
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5
-                }
+                stability: 1,
+                similarity_boost: 1,
             })
         });
         console.log('TTS response:', response);

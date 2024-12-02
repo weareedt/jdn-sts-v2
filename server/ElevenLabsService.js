@@ -12,9 +12,11 @@ const client = new ElevenLabsClient({
 
 async function createAudioStreamFromText(text) {
     try {
-        const voiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel voice ID
+        const voiceId = "djUbJhnXETnX31p3rgun"; // Rachel voice ID
         const audioStream = await client.textToSpeech.convert(voiceId, {
             model_id: "eleven_multilingual_v2",
+            stability: 1,
+            similarity_boost: 1,
             text: text
         });
 
