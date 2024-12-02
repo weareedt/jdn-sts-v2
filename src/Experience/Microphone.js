@@ -10,6 +10,7 @@ export default class Microphone {
         this.volume = 0
         this.levels = []
         this.isRecording = false
+        this.isProcessing = false
         this.recorder = null
         this.recordingInterval = null
         this.transcription = ''
@@ -59,20 +60,48 @@ export default class Microphone {
             desiredSampRate: 16000,
             timeSlice: 5000,
             ondataavailable: async (blob) => {
-                if (blob && blob.size > 0) {
+                const bannedWord =[
+                    'Terima kasih kerana menonton', 
+                    'saya akan mencuba untuk melakukan ini',
+                    'Fuck'
+                ];
+
+                if (blob && blob.size > 0 && !this.isProcessing) {
                     try {
+                        this.isProcessing = true
+                        this.pauseRecording()
+                        
                         const transcription = await MesoliticaService.transcribeAudioStream(blob)
                         if (transcription && this.setTranscription) {
-                            this.transcription = transcription
-                            console.log('Microphone received transcription:', this.transcription)
-
-                            // Update the transcription state
-                            this.setTranscription(prevTranscription => {
-                                return this.transcription
-                            })
+                            if(bannedWord.some(word => transcription.toLowerCase().includes(word.toLowerCase()))) {
+                                console.log('Banned word detected, clearing transcription and restarting...')
+                                this.transcription = ''
+                                this.setTranscription('')
+                                
+                                // Stop current recording
+                                this.stopRecording()
+                                
+                                // Create new recorder instance and start fresh
+                                this.setupRecording()
+                            } else {
+                                this.transcription = transcription
+                                console.log('Microphone received transcription:', this.transcription)
+                                
+                                // Update the transcription state
+                                this.setTranscription(prevTranscription => {
+                                    return this.transcription
+                                })
+                            }
                         }
+                        
+                        // Wait for ProxyService to complete before resuming recording
+                        await new Promise(resolve => setTimeout(resolve, 100)) // Small delay to ensure state is updated
+                        this.isProcessing = false
+                        this.resumeRecording()
                     } catch (error) {
                         console.error('Transcription error:', error)
+                        this.isProcessing = false
+                        this.resumeRecording()
                     }
                 }
             }
@@ -97,6 +126,20 @@ export default class Microphone {
                 const blob = this.recorder.getBlob()
                 console.log('Recording stopped, final blob:', blob)
             })
+        }
+    }
+
+    pauseRecording() {
+        if (this.isRecording && this.recorder) {
+            this.recorder.pauseRecording()
+            console.log('Recording paused')
+        }
+    }
+
+    resumeRecording() {
+        if (this.recorder && !this.isProcessing) {
+            this.recorder.resumeRecording()
+            console.log('Recording resumed')
         }
     }
 
