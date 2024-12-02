@@ -84,3 +84,22 @@ body
     z-index: 1000;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
+
+
+.response
+{
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 24px;
+    text-align: center;
+    max-width: 80%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    z-index: 1000;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}

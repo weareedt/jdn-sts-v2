@@ -57,7 +57,7 @@ export default class Microphone {
             recorderType: RecordRTC.StereoAudioRecorder,
             numberOfAudioChannels: 1,
             desiredSampRate: 16000,
-            timeSlice: 3000, // Get data every 3 seconds
+            timeSlice: 5000,
             ondataavailable: async (blob) => {
                 if (blob && blob.size > 0) {
                     try {
@@ -65,7 +65,8 @@ export default class Microphone {
                         if (transcription && this.setTranscription) {
                             this.transcription = transcription
                             console.log('Microphone received transcription:', this.transcription)
-                            // Directly update the transcription state
+
+                            // Update the transcription state
                             this.setTranscription(prevTranscription => {
                                 return this.transcription
                             })

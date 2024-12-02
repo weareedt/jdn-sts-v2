@@ -47,6 +47,37 @@ class MesoliticaService {
             throw error;
         }
     }
+
+    async queryLLM(transcribedText) {
+
+        try {
+            const response = await fetch('https://aishah.jdn.gov.my/api/forward_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*',
+                    'Access-Control-Allow-Origin': '*',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTIzNDUifQ.E1MDASE64Q_yMqDZNzBX2nGZK78NRXUP8cJE2I8-wns'
+                },
+                body: JSON.stringify({
+                    message: transcribedText,
+                    session_id: '123456789'
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`LLM API error: ${response.status} - ${errorData}`);
+            }
+
+            const data = await response.json();
+            console.log('LLM response:', data);
+            return data;
+        } catch (error) {
+            console.error('LLM query error:', error);
+            throw error;
+        }
+    }
 }
 
 export default new MesoliticaService();
