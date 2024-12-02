@@ -44,7 +44,7 @@ export default function ExperienceWrapper() {
           setLlmResponse(response.response.text);
 
           // Get TTS audio for the response
-          const ttsResponse = await fetch('http://jdn-relay.hiroshiaki.online:3001/api/tts', {
+          const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
