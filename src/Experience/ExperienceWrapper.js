@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Experience from './Experience.js';
 import ProxyService from '../services/ProxyService.js';
+import AudioService from '../services/AudioService.js';
 
 export default function ExperienceWrapper() {
   const containerRef = useRef(null);
@@ -31,9 +32,24 @@ export default function ExperienceWrapper() {
 
       try {
         setError('');
+        // Get LLM response
         const response = await ProxyService.post(transcription);
         console.log('LLM response:', response.response.text);
         setLlmResponse(response.response.text);
+
+        // Get TTS audio for the response
+        const ttsResponse = await fetch('http://localhost:3001/api/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: response.response.text }),
+        });
+
+        console.log('TTS response:', ttsResponse);
+
+        const { audio } = await ttsResponse.json();
+        await AudioService.playAudio(audio);
       } catch (error) {
         console.error('LLM query error:', error);
         setError(error.message);

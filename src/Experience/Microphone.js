@@ -63,7 +63,8 @@ export default class Microphone {
                 const bannedWord =[
                     'Terima kasih kerana menonton', 
                     'saya akan mencuba untuk melakukan ini',
-                    'Fuck'
+                    'Fuck',
+                    'Saya akan membunuh anda',
                 ];
 
                 if (blob && blob.size > 0 && !this.isProcessing) {
