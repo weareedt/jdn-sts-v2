@@ -69,7 +69,7 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                     backgroundColor: isLoading ? '#2a2a2a' : '#1a1a1a',
                     color: 'white',
                     fontSize: '28px',
-                    width: '600px',
+                    width: '700px',
                     outline: 'none',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                     opacity: isLoading ? 0.7 : 1,

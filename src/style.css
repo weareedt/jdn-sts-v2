@@ -87,8 +87,9 @@ body
 .response
 {
     position: absolute;
-    bottom: 25%;
+    bottom: 20%;
     left: 50%;
+    right: -30%;
     transform: translateX(-50%);
     color: #ffffff;
     font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;

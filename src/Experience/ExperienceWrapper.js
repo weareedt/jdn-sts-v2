@@ -115,6 +115,7 @@ export default function ExperienceWrapper() {
             fontSize: '38px',
             maxHeight: '150px',
             maxWidth:'1000px',
+            overflowY: 'auto',
           }}
         >
           {transcription}
@@ -129,8 +130,9 @@ export default function ExperienceWrapper() {
             padding: '10px',
             borderRadius: '5px',
             fontSize: '38px',
-            maxHeight: '150px',
+            maxHeight: '250px',
             maxWidth:'1000px',
+            overflowY: 'auto',
           }}
         >
           {llmResponse}
@@ -141,7 +143,7 @@ export default function ExperienceWrapper() {
           style={{
             position: 'fixed',
             bottom: '15%',
-            left: '5%',
+            left: '2%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
