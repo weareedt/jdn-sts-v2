@@ -39,86 +39,86 @@ export default class Sphere
     }
 
     setVariations()
+{
+    this.variations = {}
+
+    this.variations.volume = {}
+    this.variations.volume.target = 0
+    this.variations.volume.current = 0
+    this.variations.volume.upEasing = 0.1
+    this.variations.volume.downEasing = 0.005
+    this.variations.volume.getValue = () =>
     {
-        this.variations = {}
+        const levels = AudioService.getLevels()
+        const level0 = levels[0] || 0
+        const level1 = levels[1] || 0
+        const level2 = levels[2] || 0
 
-        this.variations.volume = {}
-        this.variations.volume.target = 0
-        this.variations.volume.current = 0
-        this.variations.volume.upEasing = 0.03
-        this.variations.volume.downEasing = 0.002
-        this.variations.volume.getValue = () =>
-        {
-            const levels = AudioService.getLevels()
-            const level0 = levels[0] || 0
-            const level1 = levels[1] || 0
-            const level2 = levels[2] || 0
-
-            return Math.max(level0, level1, level2) * 0.3
-        }
-        this.variations.volume.getDefault = () =>
-        {
-            return 0.152
-        }
-
-        this.variations.lowLevel = {}
-        this.variations.lowLevel.target = 0
-        this.variations.lowLevel.current = 0
-        this.variations.lowLevel.upEasing = 0.005
-        this.variations.lowLevel.downEasing = 0.002
-        this.variations.lowLevel.getValue = () =>
-        {
-            let value = AudioService.getLevels()[0] || 0
-            value *= 0.003
-            value += 0.0001
-            value = Math.max(0, value)
-
-            return value
-        }
-        this.variations.lowLevel.getDefault = () =>
-        {
-            return 0.0003
-        }
-        
-        this.variations.mediumLevel = {}
-        this.variations.mediumLevel.target = 0
-        this.variations.mediumLevel.current = 0
-        this.variations.mediumLevel.upEasing = 0.008
-        this.variations.mediumLevel.downEasing = 0.004
-        this.variations.mediumLevel.getValue = () =>
-        {
-            let value = AudioService.getLevels()[1] || 0
-            value *= 2
-            value += 3.587
-            value = Math.max(3.587, value)
-
-            return value
-        }
-        this.variations.mediumLevel.getDefault = () =>
-        {
-            return 3.587
-        }
-        
-        this.variations.highLevel = {}
-        this.variations.highLevel.target = 0
-        this.variations.highLevel.current = 0
-        this.variations.highLevel.upEasing = 0.02
-        this.variations.highLevel.downEasing = 0.001
-        this.variations.highLevel.getValue = () =>
-        {
-            let value = AudioService.getLevels()[2] || 0
-            value *= 5
-            value += 0.5
-            value = Math.max(0.5, value)
-
-            return value
-        }
-        this.variations.highLevel.getDefault = () =>
-        {
-            return 0.65
-        }
-        
+        return Math.max(level0, level1, level2) * 0.5
     }
+    this.variations.volume.getDefault = () =>
+    {
+        return 0.152
+    }
+
+    this.variations.lowLevel = {}
+    this.variations.lowLevel.target = 0
+    this.variations.lowLevel.current = 0
+    this.variations.lowLevel.upEasing = 0.01
+    this.variations.lowLevel.downEasing = 0.004
+    this.variations.lowLevel.getValue = () =>
+    {
+        let value = AudioService.getLevels()[0] || 0
+        value *= 0.01
+        value += 0.0001
+        value = Math.max(0, value)
+
+        return value
+    }
+    this.variations.lowLevel.getDefault = () =>
+    {
+        return 0.0003
+    }
+    
+    this.variations.mediumLevel = {}
+    this.variations.mediumLevel.target = 0
+    this.variations.mediumLevel.current = 0
+    this.variations.mediumLevel.upEasing = 0.02
+    this.variations.mediumLevel.downEasing = 0.01
+    this.variations.mediumLevel.getValue = () =>
+    {
+        let value = AudioService.getLevels()[1] || 0
+        value *= 3
+        value += 5
+        value = Math.max(5, value)
+
+        return value
+    }
+    this.variations.mediumLevel.getDefault = () =>
+    {
+        return 5
+    }
+    
+    this.variations.highLevel = {}
+    this.variations.highLevel.target = 0
+    this.variations.highLevel.current = 0
+    this.variations.highLevel.upEasing = 0.05
+    this.variations.highLevel.downEasing = 0.002
+    this.variations.highLevel.getValue = () =>
+    {
+        let value = AudioService.getLevels()[2] || 0
+        value *= 8
+        value += 1
+        value = Math.max(1, value)
+
+        return value
+    }
+    this.variations.highLevel.getDefault = () =>
+    {
+        return 0.65
+    }
+}
+
 
     setLights()
     {
