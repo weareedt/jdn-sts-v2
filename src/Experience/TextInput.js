@@ -53,6 +53,13 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
+                position: 'fixed',
+                bottom: '40px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '90%',
+                maxWidth: '1200px',
+                padding: '0 10px',
             }}
         >
             <input
@@ -69,7 +76,7 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                     backgroundColor: isLoading ? '#2a2a2a' : '#1a1a1a',
                     color: 'white',
                     fontSize: '28px',
-                    width: '700px',
+                    width: '100%',
                     outline: 'none',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                     opacity: isLoading ? 0.7 : 1,
@@ -80,8 +87,8 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                 onClick={sendMessage}
                 disabled={isLoading}
                 style={{
-                    width: '50px',
-                    height: '50px',
+                    width: '65px',
+                    height: '65px',
                     padding: 0,
                     backgroundColor: isLoading ? '#6D28D9' : '#8B5CF6',
                     color: 'white',
@@ -124,8 +131,8 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                 {isLoading ? (
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
+                        width="30"
+                        height="30"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -139,8 +146,8 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
                 ) : (
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
+                        width="30"
+                        height="30"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
