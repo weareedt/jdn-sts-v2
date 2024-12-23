@@ -44,7 +44,7 @@ export default class Camera
         this.modes.debug = {}
         this.modes.debug.instance = this.instance.clone()
         this.modes.debug.instance.rotation.reorder('YXZ')
-        this.modes.debug.instance.position.set(0, 0, 7)
+        this.modes.debug.instance.position.set(0, 0, 10) // Set to maximum distance initially
         
         this.modes.debug.orbitControls = new OrbitControls(this.modes.debug.instance, this.targetElement)
         this.modes.debug.orbitControls.enabled = this.modes.debug.active
@@ -52,9 +52,14 @@ export default class Camera
         this.modes.debug.orbitControls.enableKeys = false
         this.modes.debug.orbitControls.zoomSpeed = 0.25
         this.modes.debug.orbitControls.enableDamping = true
+        this.modes.debug.orbitControls.enableRotate = false // Disable rotation
+        this.modes.debug.orbitControls.enablePan = false // Disable panning
+        this.modes.debug.orbitControls.enableZoom = true // Enable zooming
+        this.modes.debug.orbitControls.enabled = true // Keep controls enabled for zoom
+        this.modes.debug.orbitControls.minDistance = 3 // Set minimum zoom distance
+        this.modes.debug.orbitControls.maxDistance = 10 // Set maximum zoom distance
         this.modes.debug.orbitControls.update()
     }
-
 
     resize()
     {

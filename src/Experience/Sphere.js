@@ -253,6 +253,7 @@ export default class Sphere
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
+            transparent: true
         })
 
         this.material.uniforms.uLightAPosition.value.setFromSpherical(this.lights.a.spherical)
