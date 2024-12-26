@@ -103,9 +103,10 @@ export default function PTT({ setTranscription , setIsPTTActiveRef}) {
 
     const getButtonStyles = () => {
         const baseStyles = {
-            left: '50%',
-            bottom: '10px',
-            transform: 'translateX(-50%)',
+            position: 'fixed',
+            right: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
             width: '65px',
             height: '65px',
             backgroundColor: '#8B5CF6',
@@ -126,7 +127,7 @@ export default function PTT({ setTranscription , setIsPTTActiveRef}) {
                 return {
                     ...baseStyles,
                     backgroundColor: '#6D28D9',
-                    transform: 'translateX(-50%) scale(0.95)',
+                    transform: 'translateY(-50%) scale(0.95)',
                 };
             case 'processing':
                 return {
