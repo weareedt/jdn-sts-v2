@@ -86,23 +86,27 @@ export default function ExperienceWrapper() {
     <>
       <div ref={containerRef}></div>
       {isGreeting && (
-        <div
+        <p
           className="greeting"
           style={{
             position: 'fixed',
-            top: '15%',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            top: '25vh',
+            left: 0,
+            width: '100%',
+            height: '10vh', 
+            display: 'block',
+            overflowY: 'auto',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '38px',
+            fontSize: '1rem',
             zIndex: 1000,
             textAlign: 'center',
+            overflowY: 'auto',
           }}
         >
           Hi, Saya Terra. Ada apa-apa saya boleh bantu?
-        </div>
+        </p>
       )}
       {llmResponse && (
         <div
