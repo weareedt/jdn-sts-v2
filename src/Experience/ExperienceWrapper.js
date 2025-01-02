@@ -46,13 +46,16 @@ export default function ExperienceWrapper() {
           setLlmResponse(response.response.text);
 
           // Get TTS audio for the response
-          const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text: response.response.text }),
-          });
+          const ttsResponse = await fetch(
+            'https://jdn-relay.hiroshiaki.online:3001/api/tts',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ text: response.response.text }),
+            }
+          );
 
           console.log('TTS response:', ttsResponse);
 
@@ -84,117 +87,148 @@ export default function ExperienceWrapper() {
 
   return (
     <>
-      <div ref={containerRef}></div>
+      <div 
+        ref={containerRef} 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height:  '100%',
+          zIndex: 1,
+          backgroundColor: '#000'
+        }}
+      ></div>
       {isGreeting && (
-        <div
+        <p
           className="greeting"
           style={{
             position: 'fixed',
-            top: '15%',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            top: '25vh',
+            left: 0,
+            width: '100%',
+            height: '10vh',
+            display: 'block',
+            overflowY: 'auto',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '38px',
+            fontSize: '1rem',
             zIndex: 1000,
             textAlign: 'center',
+            overflowY: 'auto',
           }}
         >
           Hi, Saya Terra. Ada apa-apa saya boleh bantu?
-        </div>
+        </p>
       )}
       {llmResponse && (
-        <div
-          className="transcript"
+        <p
+          className="greeting"
           style={{
             position: 'fixed',
+            top: '25vh',
+            left: 0,
+            width: '100%',
+            height: '10vh',
+            display: 'block',
+            overflowY: 'auto',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '38px',
-            maxHeight: '150px',
-            maxWidth:'1000px',
+            fontSize: '1rem',
+            zIndex: 1000,
+            textAlign: 'center',
             overflowY: 'auto',
           }}
         >
           {transcription}
-        </div>
+        </p>
       )}
       {llmResponse && (
-        <div
+        <p
           className="response"
           style={{
             position: 'fixed',
+            top: '65vh',
+            right: 0,
+            width: '100%',
+            height: '10vh',
+            display: 'flex',
+            overflowY: 'auto',
             color: 'white',
             padding: '10px',
             borderRadius: '5px',
-            fontSize: '38px',
-            maxHeight: '250px',
-            maxWidth:'1000px',
+            fontSize: '1rem',
+            zIndex: 1000,
+            textAlign: 'center',
             overflowY: 'auto',
           }}
         >
           {llmResponse}
-        </div>
+        </p>
       )}
-      {isVisible && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '15%',
-            left: '2%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            gap: '40px',
-            zIndex: 1000,
-          }}
-        >
+      <div
+        style={{
+          position: 'fixed',
+          top: '75vh',
+          left: 0,
+          width: '100%',
+          height: '20vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          padding: '0 20px',
+          gap: '20px',
+          zIndex: 1000,
+          borderRadius: '12px',
+        }}
+      >
+        {isVisible && (
           <TextInput
             setTranscription={setTranscription}
             setLlmResponse={setLlmResponse}
           />
-          <PTT
-            setTranscription={setTranscription}
-            setIsPTTActiveRef={setIsPTTActiveRef}
-          />
-        </div>
-      )}
-      <button
-    onClick={toggleVisibility}
-    style={{
-      position: 'fixed',
-        bottom: '10px',
-        right: '10px',
-        width: '50px', 
-        height: '50px', 
-        backgroundColor: '#8B5CF6',
-        color: 'white',
-        border: 'none',
-        borderRadius: '50%', 
-        cursor: 'pointer',
-        zIndex: 1000,
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center'
-    }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        )}
+        <PTT
+          setTranscription={setTranscription}
+          setIsPTTActiveRef={setIsPTTActiveRef}
+        />
+
+        <button
+          onClick={toggleVisibility}
+          style={{
+            position: 'fixed',
+            bottom: '5vh',
+            right: '3vh',
+            width: '50px',
+            height: '50px',
+            backgroundColor: '#8B5CF6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <path d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
+          </svg>
+        </button>
+      </div>
     </>
   );
 }
