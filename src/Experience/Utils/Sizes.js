@@ -2,9 +2,6 @@ import EventEmitter from './EventEmitter.js'
 
 export default class Sizes extends EventEmitter
 {
-    /**
-     * Constructor
-     */
     constructor()
     {
         super()
@@ -13,9 +10,9 @@ export default class Sizes extends EventEmitter
         this.viewport = {}
         this.$sizeViewport = document.createElement('div')
         this.$sizeViewport.style.width = '100vw'
-        this.$sizeViewport.style.height = '100vh'
+        this.$sizeViewport.style.height = '15vh' // Set height to 15% of viewport height
         this.$sizeViewport.style.position = 'absolute'
-        this.$sizeViewport.style.top = 0
+        this.$sizeViewport.style.top = '5vh' // Position 5% from top
         this.$sizeViewport.style.left = 0
         this.$sizeViewport.style.pointerEvents = 'none'
 
@@ -26,9 +23,6 @@ export default class Sizes extends EventEmitter
         this.resize()
     }
 
-    /**
-     * Resize
-     */
     resize()
     {
         document.body.appendChild(this.$sizeViewport)
@@ -37,7 +31,7 @@ export default class Sizes extends EventEmitter
         document.body.removeChild(this.$sizeViewport)
 
         this.width = window.innerWidth
-        this.height = window.innerHeight
+        this.height = window.innerHeight * 0.15 // 15% of viewport height
 
         this.trigger('resize')
     }
