@@ -25,7 +25,7 @@ export default class Camera
     setInstance()
     {
         // Set up
-        this.instance = new THREE.PerspectiveCamera(25, this.config.width / this.config.height, 0.1, 15)
+        this.instance = new THREE.PerspectiveCamera(30, this.config.width / this.config.height, 0.1, 50)
         this.instance.rotation.reorder('YXZ')
 
         this.scene.add(this.instance)
@@ -44,7 +44,7 @@ export default class Camera
         this.modes.debug = {}
         this.modes.debug.instance = this.instance.clone()
         this.modes.debug.instance.rotation.reorder('YXZ')
-        this.modes.debug.instance.position.set(0, 0, 10) // Set to maximum distance initially
+        this.modes.debug.instance.position.set(0, 0, 15) // Move camera further back to make sphere appear smaller
         
         this.modes.debug.orbitControls = new OrbitControls(this.modes.debug.instance, this.targetElement)
         this.modes.debug.orbitControls.enabled = this.modes.debug.active
@@ -56,9 +56,11 @@ export default class Camera
         this.modes.debug.orbitControls.enablePan = false // Disable panning
         this.modes.debug.orbitControls.enableZoom = true // Enable zooming
         this.modes.debug.orbitControls.enabled = true // Keep controls enabled for zoom
-        this.modes.debug.orbitControls.minDistance = 3 // Set minimum zoom distance
-        this.modes.debug.orbitControls.maxDistance = 10 // Set maximum zoom distance
+        this.modes.debug.orbitControls.minDistance = 10 // Set minimum zoom distance
+        this.modes.debug.orbitControls.maxDistance = 50 // Set maximum zoom distance
         this.modes.debug.orbitControls.update()
+
+        console.log(this.modes.debug.instance.position)
     }
 
     resize()
