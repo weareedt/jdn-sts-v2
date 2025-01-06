@@ -199,7 +199,7 @@ export default function ExperienceWrapper() {
           onClick={toggleVisibility}
           style={{
             position: 'absolute',
-            bottom: '0',
+            bottom: '25px',
             right: '3vh',
             width: '50px',
             height: '50px',
