@@ -170,7 +170,7 @@ export default function ExperienceWrapper() {
       )}
       <div
         style={{
-          position: 'fixed',
+          position: 'absolute',
           top: '75vh',
           left: 0,
           width: '100%',
@@ -198,8 +198,8 @@ export default function ExperienceWrapper() {
         <button
           onClick={toggleVisibility}
           style={{
-            position: 'fixed',
-            bottom: '5vh',
+            position: 'absolute',
+            bottom: '0',
             right: '3vh',
             width: '50px',
             height: '50px',
