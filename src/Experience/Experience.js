@@ -134,7 +134,7 @@ export default class Experience extends EventEmitter
             this.microphone.update()
 
         if(this.world)
-            this.world.update()
+            // this.world.update()
         
         if(this.renderer)
             this.renderer.update()

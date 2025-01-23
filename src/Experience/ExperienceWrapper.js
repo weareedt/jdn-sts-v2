@@ -195,39 +195,39 @@ export default function ExperienceWrapper() {
           setIsPTTActiveRef={setIsPTTActiveRef}
         />
 
-        <button
-          onClick={toggleVisibility}
-          style={{
-            position: 'absolute',
-            bottom: '25px',
-            right: '3vh',
-            width: '50px',
-            height: '50px',
-            backgroundColor: '#8B5CF6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
-          </svg>
-        </button>
+        {/*<button*/}
+        {/*  onClick={toggleVisibility}*/}
+        {/*  style={{*/}
+        {/*    position: 'absolute',*/}
+        {/*    bottom: '25px',*/}
+        {/*    right: '3vh',*/}
+        {/*    width: '50px',*/}
+        {/*    height: '50px',*/}
+        {/*    backgroundColor: '#8B5CF6',*/}
+        {/*    color: 'white',*/}
+        {/*    border: 'none',*/}
+        {/*    borderRadius: '50%',*/}
+        {/*    cursor: 'pointer',*/}
+        {/*    zIndex: 1000,*/}
+        {/*    display: 'flex',*/}
+        {/*    alignItems: 'center',*/}
+        {/*    justifyContent: 'center',*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <svg*/}
+        {/*    xmlns="http://www.w3.org/2000/svg"*/}
+        {/*    width="24"*/}
+        {/*    height="24"*/}
+        {/*    viewBox="0 0 24 24"*/}
+        {/*    fill="none"*/}
+        {/*    stroke="currentColor"*/}
+        {/*    strokeWidth="2"*/}
+        {/*    strokeLinecap="round"*/}
+        {/*    strokeLinejoin="round"*/}
+        {/*  >*/}
+        {/*    <path d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>*/}
+        {/*  </svg>*/}
+        {/*</button>*/}
       </div>
     </>
   );

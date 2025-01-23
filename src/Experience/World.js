@@ -16,7 +16,7 @@ export default class World
             if(_group.name === 'base')
             {
                 this.setBackground()
-                this.setSphere()
+                // this.setSphere()
             }
         })
     }
