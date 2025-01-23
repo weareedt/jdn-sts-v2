@@ -17,8 +17,7 @@ export default class Renderer
         this.scene = this.experience.scene
         this.camera = this.experience.camera
 
-        // this.usePostprocess = true
-        this.usePostprocess = false
+        this.usePostprocess = true
 
         if(this.debug)
         {
@@ -38,7 +37,7 @@ export default class Renderer
         // Renderer
         this.instance = new THREE.WebGLRenderer({
             alpha: false,
-            antialias: false// performance issue
+            antialias: true
         })
         this.instance.domElement.style.position = 'absolute'
         this.instance.domElement.style.top = 0
@@ -81,10 +80,10 @@ export default class Renderer
 
         // Bloom pass
         this.postProcess.unrealBloomPass = new UnrealBloomPass(
-            new THREE.Vector2(this.sizes.width, this.sizes.height),
-            0.8,
-            0.315,
-            0
+          new THREE.Vector2(this.sizes.width, this.sizes.height),
+          0.8,
+          0.315,
+          0
         )
         this.postProcess.unrealBloomPass.enabled = true
 
@@ -129,55 +128,55 @@ void main() {
         if(this.debug)
         {
             const debugFolder = this.debugFolder
-                .addFolder({
-                    title: 'UnrealBloomPass'
-                })
+              .addFolder({
+                  title: 'UnrealBloomPass'
+              })
 
             debugFolder
-                .addInput(
-                    this.postProcess.unrealBloomPass,
-                    'enabled',
-                    {  }
-                )
+              .addInput(
+                this.postProcess.unrealBloomPass,
+                'enabled',
+                {  }
+              )
 
             debugFolder
-                .addInput(
-                    this.postProcess.unrealBloomPass,
-                    'strength',
-                    { min: 0, max: 3, step: 0.001 }
-                )
+              .addInput(
+                this.postProcess.unrealBloomPass,
+                'strength',
+                { min: 0, max: 3, step: 0.001 }
+              )
 
             debugFolder
-                .addInput(
-                    this.postProcess.unrealBloomPass,
-                    'radius',
-                    { min: 0, max: 1, step: 0.001 }
-                )
+              .addInput(
+                this.postProcess.unrealBloomPass,
+                'radius',
+                { min: 0, max: 1, step: 0.001 }
+              )
 
             debugFolder
-                .addInput(
-                    this.postProcess.unrealBloomPass,
-                    'threshold',
-                    { min: 0, max: 1, step: 0.001 }
-                )
+              .addInput(
+                this.postProcess.unrealBloomPass,
+                'threshold',
+                { min: 0, max: 1, step: 0.001 }
+              )
 
             debugFolder
-                .addInput(
-                    this.postProcess.unrealBloomPass.tintColor,
-                    'value',
-                    { view: 'uTintColor', label: 'color' }
-                )
-                .on('change', () =>
-                {
-                    this.postProcess.unrealBloomPass.tintColor.instance.set(this.postProcess.unrealBloomPass.tintColor.value)
-                })
+              .addInput(
+                this.postProcess.unrealBloomPass.tintColor,
+                'value',
+                { view: 'uTintColor', label: 'color' }
+              )
+              .on('change', () =>
+              {
+                  this.postProcess.unrealBloomPass.tintColor.instance.set(this.postProcess.unrealBloomPass.tintColor.value)
+              })
 
             debugFolder
-                .addInput(
-                    this.postProcess.unrealBloomPass.compositeMaterial.uniforms.uTintStrength,
-                    'value',
-                    { label: 'uTintStrength', min: 0, max: 1, step: 0.001 }
-                )
+              .addInput(
+                this.postProcess.unrealBloomPass.compositeMaterial.uniforms.uTintStrength,
+                'value',
+                { label: 'uTintStrength', min: 0, max: 1, step: 0.001 }
+              )
         }
 
         /**
@@ -186,15 +185,15 @@ void main() {
         const RenderTargetClass = this.config.pixelRatio >= 2 ? THREE.WebGLRenderTarget : THREE.WebGLMultisampleRenderTarget
         // const RenderTargetClass = THREE.WebGLRenderTarget
         this.renderTarget = new RenderTargetClass(
-            this.config.width,
-            this.config.height,
-            {
-                generateMipmaps: false,
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.LinearFilter,
-                format: THREE.RGBFormat,
-                encoding: THREE.sRGBEncoding
-            }
+          this.config.width,
+          this.config.height,
+          {
+              generateMipmaps: false,
+              minFilter: THREE.LinearFilter,
+              magFilter: THREE.LinearFilter,
+              format: THREE.RGBFormat,
+              encoding: THREE.sRGBEncoding
+          }
         )
         this.postProcess.composer = new EffectComposer(this.instance, this.renderTarget)
         this.postProcess.composer.setSize(this.config.width, this.config.height)
@@ -204,26 +203,16 @@ void main() {
         this.postProcess.composer.addPass(this.postProcess.unrealBloomPass)
     }
 
-    // resize()
-    // {
-    //     // Instance
-    //     this.instance.setSize(this.config.width, this.config.height)
-    //     this.instance.setPixelRatio(this.config.pixelRatio)
-    //
-    //     // Post process
-    //     this.postProcess.composer.setSize(this.config.width, this.config.height)
-    //     this.postProcess.composer.setPixelRatio(this.config.pixelRatio)
-    // }
-
     resize()
     {
         // Instance
-        const width = this.config.width * 0.5;  // Render at half width
-        const height = this.config.height * 0.5;  // Render at half height
-        this.instance.setSize(width, height);
-        this.instance.setPixelRatio(Math.min(window.devicePixelRatio, 1));  // Set pixel ratio to 1 or lower
+        this.instance.setSize(this.config.width, this.config.height)
+        this.instance.setPixelRatio(this.config.pixelRatio)
+
+        // Post process
+        this.postProcess.composer.setSize(this.config.width, this.config.height)
+        this.postProcess.composer.setPixelRatio(this.config.pixelRatio)
     }
-y
 
     update()
     {
