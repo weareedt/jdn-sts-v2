@@ -215,7 +215,7 @@ export default class Sphere
 
     setGeometry()
     {
-        this.geometry = new THREE.SphereGeometry(1, 512, 512)
+        this.geometry = new THREE.SphereGeometry(1, 32, 32);
         this.geometry.computeTangents()
     }
 
@@ -255,6 +255,8 @@ export default class Sphere
             fragmentShader: fragmentShader,
             transparent: true
         })
+
+
 
         this.material.uniforms.uLightAPosition.value.setFromSpherical(this.lights.a.spherical)
         this.material.uniforms.uLightBPosition.value.setFromSpherical(this.lights.b.spherical)

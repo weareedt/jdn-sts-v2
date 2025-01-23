@@ -32,12 +32,12 @@ export default class Renderer
 
     setInstance()
     {
-        this.clearColor = '#010101'
+        this.clearColor = '#000000'
 
         // Renderer
         this.instance = new THREE.WebGLRenderer({
             alpha: false,
-            antialias: true
+            antialias: false
         })
         this.instance.domElement.style.position = 'absolute'
         this.instance.domElement.style.top = 0
@@ -197,7 +197,7 @@ void main() {
         )
         this.postProcess.composer = new EffectComposer(this.instance, this.renderTarget)
         this.postProcess.composer.setSize(this.config.width, this.config.height)
-        this.postProcess.composer.setPixelRatio(this.config.pixelRatio)
+        this.instance.setPixelRatio(Math.min(this.config.pixelRatio, 1))
 
         this.postProcess.composer.addPass(this.postProcess.renderPass)
         this.postProcess.composer.addPass(this.postProcess.unrealBloomPass)
