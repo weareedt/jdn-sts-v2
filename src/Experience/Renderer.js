@@ -10,8 +10,8 @@ export default class Renderer
     {
         this.experience = new Experience()
         this.config = this.experience.config
-        this.debug = this.experience.debug
-        this.stats = this.experience.stats
+        // this.debug = this.experience.debug
+        // this.stats = this.experience.stats
         this.time = this.experience.time
         this.sizes = this.experience.sizes
         this.scene = this.experience.scene
@@ -19,12 +19,12 @@ export default class Renderer
 
         this.usePostprocess = true
 
-        if(this.debug)
-        {
-            this.debugFolder = this.debug.addFolder({
-                title: 'renderer'
-            })
-        }
+        // if(this.debug)
+        // {
+        //     this.debugFolder = this.debug.addFolder({
+        //         title: 'renderer'
+        //     })
+        // }
 
         this.setInstance()
         this.setPostProcess()
@@ -62,10 +62,10 @@ export default class Renderer
         this.context = this.instance.getContext()
 
         // Add stats panel
-        if(this.stats)
-        {
-            this.stats.setRenderPanel(this.context)
-        }
+        // if(this.stats)
+        // {
+        //     this.stats.setRenderPanel(this.context)
+        // }
     }
 
     setPostProcess()
@@ -125,59 +125,59 @@ void main() {
 }
         `
 
-        if(this.debug)
-        {
-            const debugFolder = this.debugFolder
-              .addFolder({
-                  title: 'UnrealBloomPass'
-              })
-
-            debugFolder
-              .addInput(
-                this.postProcess.unrealBloomPass,
-                'enabled',
-                {  }
-              )
-
-            debugFolder
-              .addInput(
-                this.postProcess.unrealBloomPass,
-                'strength',
-                { min: 0, max: 3, step: 0.001 }
-              )
-
-            debugFolder
-              .addInput(
-                this.postProcess.unrealBloomPass,
-                'radius',
-                { min: 0, max: 1, step: 0.001 }
-              )
-
-            debugFolder
-              .addInput(
-                this.postProcess.unrealBloomPass,
-                'threshold',
-                { min: 0, max: 1, step: 0.001 }
-              )
-
-            debugFolder
-              .addInput(
-                this.postProcess.unrealBloomPass.tintColor,
-                'value',
-                { view: 'uTintColor', label: 'color' }
-              )
-              .on('change', () =>
-              {
-                  this.postProcess.unrealBloomPass.tintColor.instance.set(this.postProcess.unrealBloomPass.tintColor.value)
-              })
-
-            debugFolder
-              .addInput(
-                this.postProcess.unrealBloomPass.compositeMaterial.uniforms.uTintStrength,
-                'value',
-                { label: 'uTintStrength', min: 0, max: 1, step: 0.001 }
-              )
-        }
+        // if(this.debug)
+        // {
+        //     const debugFolder = this.debugFolder
+        //       .addFolder({
+        //           title: 'UnrealBloomPass'
+        //       })
+        //
+        //     debugFolder
+        //       .addInput(
+        //         this.postProcess.unrealBloomPass,
+        //         'enabled',
+        //         {  }
+        //       )
+        //
+        //     debugFolder
+        //       .addInput(
+        //         this.postProcess.unrealBloomPass,
+        //         'strength',
+        //         { min: 0, max: 3, step: 0.001 }
+        //       )
+        //
+        //     debugFolder
+        //       .addInput(
+        //         this.postProcess.unrealBloomPass,
+        //         'radius',
+        //         { min: 0, max: 1, step: 0.001 }
+        //       )
+        //
+        //     debugFolder
+        //       .addInput(
+        //         this.postProcess.unrealBloomPass,
+        //         'threshold',
+        //         { min: 0, max: 1, step: 0.001 }
+        //       )
+        //
+        //     debugFolder
+        //       .addInput(
+        //         this.postProcess.unrealBloomPass.tintColor,
+        //         'value',
+        //         { view: 'uTintColor', label: 'color' }
+        //       )
+        //       .on('change', () =>
+        //       {
+        //           this.postProcess.unrealBloomPass.tintColor.instance.set(this.postProcess.unrealBloomPass.tintColor.value)
+        //       })
+        //
+        //     debugFolder
+        //       .addInput(
+        //         this.postProcess.unrealBloomPass.compositeMaterial.uniforms.uTintStrength,
+        //         'value',
+        //         { label: 'uTintStrength', min: 0, max: 1, step: 0.001 }
+        //       )
+        // }
 
         /**
          * Effect composer
@@ -216,10 +216,10 @@ void main() {
 
     update()
     {
-        if(this.stats)
-        {
-            this.stats.beforeRender()
-        }
+        // if(this.stats)
+        // {
+        //     this.stats.beforeRender()
+        // }
 
         if(this.usePostprocess)
         {
@@ -230,10 +230,10 @@ void main() {
             this.instance.render(this.scene, this.camera.instance)
         }
 
-        if(this.stats)
-        {
-            this.stats.afterRender()
-        }
+        // if(this.stats)
+        // {
+        //     this.stats.afterRender()
+        // }
     }
 
     destroy()

@@ -42,7 +42,7 @@ export default class Experience extends EventEmitter
         this.sizes = new Sizes()
         this.setConfig()
         this.setStats()
-        this.setDebug()
+        // this.setDebug()
         this.setScene()
         this.setCamera()
         this.setRenderer()
@@ -63,7 +63,7 @@ export default class Experience extends EventEmitter
         this.config = {}
     
         // Debug
-        this.config.debug = window.location.hash === '#debug'
+        // this.config.debug = window.location.hash === '#debug'
 
         // Pixel ratio
         this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2)
@@ -76,20 +76,20 @@ export default class Experience extends EventEmitter
 
     setStats()
     {
-        if(this.config.debug)
-        {
-            this.stats = new Stats(true)
-        }
+        // if(this.config.debug)
+        // {
+        //     this.stats = new Stats(true)
+        // }
     }
 
-    setDebug()
-    {
-        if(this.config.debug)
-        {
-            this.debug = new Pane()
-            this.debug.containerElem_.style.width = '320px'
-        }
-    }
+    // setDebug()
+    // {
+    //     if(this.config.debug)
+    //     {
+    //         this.debug = new Pane()
+    //         this.debug.containerElem_.style.width = '320px'
+    //     }
+    // }
     
     setScene()
     {
@@ -125,8 +125,8 @@ export default class Experience extends EventEmitter
 
     update()
     {
-        if(this.stats)
-            this.stats.update()
+        // if(this.stats)
+        //     this.stats.update()
         
         this.camera.update()
 
