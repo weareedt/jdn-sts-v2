@@ -117,40 +117,40 @@ export default class Microphone {
         }
     }
 
-    setSpectrum() {
-        this.spectrum = {}
-        this.spectrum.width = this.analyserNode.fftSize
-        this.spectrum.height = 128
-        this.spectrum.halfHeight = Math.round(this.spectrum.height * 0.5)
-        
-        this.spectrum.canvas = document.createElement('canvas')
-        this.spectrum.canvas.width = this.spectrum.width
-        this.spectrum.canvas.height = this.spectrum.height
-        this.spectrum.canvas.style.position = 'fixed'
-        this.spectrum.canvas.style.left = 0
-        this.spectrum.canvas.style.bottom = 0
-        document.body.append(this.spectrum.canvas)
-
-        this.spectrum.context = this.spectrum.canvas.getContext('2d')
-        this.spectrum.context.fillStyle = '#ffffff'
-
-        this.spectrum.update = () => {
-            this.spectrum.context.clearRect(0, 0, this.spectrum.width, this.spectrum.height)
-
-            for (let i = 0; i < this.analyserNode.fftSize; i++) {
-                const floatTimeDomainValue = this.floatTimeDomainData[i]
-                const byteFrequencyValue = this.byteFrequencyData[i]
-                const normalizeByteFrequencyValue = byteFrequencyValue / 255
-
-                const x = i
-                const y = this.spectrum.height - (normalizeByteFrequencyValue * this.spectrum.height)
-                const width = 1
-                const height = normalizeByteFrequencyValue * this.spectrum.height
-
-                this.spectrum.context.fillRect(x, y, width, height)
-            }
-        }
-    }
+    // setSpectrum() {
+    //     this.spectrum = {}
+    //     this.spectrum.width = this.analyserNode.fftSize
+    //     this.spectrum.height = 128
+    //     this.spectrum.halfHeight = Math.round(this.spectrum.height * 0.5)
+    //
+    //     this.spectrum.canvas = document.createElement('canvas')
+    //     this.spectrum.canvas.width = this.spectrum.width
+    //     this.spectrum.canvas.height = this.spectrum.height
+    //     this.spectrum.canvas.style.position = 'fixed'
+    //     this.spectrum.canvas.style.left = 0
+    //     this.spectrum.canvas.style.bottom = 0
+    //     document.body.append(this.spectrum.canvas)
+    //
+    //     this.spectrum.context = this.spectrum.canvas.getContext('2d')
+    //     this.spectrum.context.fillStyle = '#ffffff'
+    //
+    //     this.spectrum.update = () => {
+    //         this.spectrum.context.clearRect(0, 0, this.spectrum.width, this.spectrum.height)
+    //
+    //         for (let i = 0; i < this.analyserNode.fftSize; i++) {
+    //             const floatTimeDomainValue = this.floatTimeDomainData[i]
+    //             const byteFrequencyValue = this.byteFrequencyData[i]
+    //             const normalizeByteFrequencyValue = byteFrequencyValue / 255
+    //
+    //             const x = i
+    //             const y = this.spectrum.height - (normalizeByteFrequencyValue * this.spectrum.height)
+    //             const width = 1
+    //             const height = normalizeByteFrequencyValue * this.spectrum.height
+    //
+    //             this.spectrum.context.fillRect(x, y, width, height)
+    //         }
+    //     }
+    // }
 
     getLevels() {
         const bufferLength = this.analyserNode.fftSize

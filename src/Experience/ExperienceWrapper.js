@@ -54,6 +54,11 @@ export default function ExperienceWrapper() {
           // Step 1: Query LLM for a response
           console.log(`queryLLM: Sending transcription to LLM: "${transcription}"`);
           const response = await ProxyService.post(transcription);
+
+          if (!response || !response.response || !response.response.text) {
+            throw new Error('Invalid LLM response structure');
+          }
+
           console.log('queryLLM: LLM response received:', response.response.text);
           setLlmResponse(response.response.text);
 
@@ -70,13 +75,20 @@ export default function ExperienceWrapper() {
             }
           );
 
-          console.log('queryLLM: TTS fetch response received:', ttsResponse);
+          // Check TTS API response status
+          if (!ttsResponse.ok) {
+            const errorDetails = await ttsResponse.json().catch(() => ({}));
+            console.error('queryLLM: TTS service error response:', errorDetails);
+            throw new Error(`TTS service error: ${errorDetails.message || 'Unknown error occurred'}`);
+          }
+
+          console.log('queryLLM: TTS fetch response received');
 
           // Step 3: Parse the TTS response
-          if (!ttsResponse.ok) {
-            throw new Error(`TTS service responded with status: ${ttsResponse.status}`);
-          }
           const { audio } = await ttsResponse.json();
+          if (!audio) {
+            throw new Error('TTS response missing audio data');
+          }
           console.log('queryLLM: TTS audio data extracted');
 
           // Step 4: Play the TTS audio
@@ -88,9 +100,14 @@ export default function ExperienceWrapper() {
           setIsPTTActiveRef(false);
 
         } catch (error) {
-          // Log and set the error message
-          console.error('queryLLM: Error during LLM query or TTS handling:', error);
-          setError(error.message);
+          // Detailed error handling
+          console.error('queryLLM: Error occurred during LLM query or TTS handling:', error);
+
+          // Set a user-friendly error message
+          setError(
+            error.message ||
+            'An unexpected error occurred while processing your request. Please try again later.'
+          );
         }
       } else {
         console.log('queryLLM: PTT is not active, skipping query');
@@ -99,6 +116,7 @@ export default function ExperienceWrapper() {
 
     queryLLM();
   }, [transcription]);
+
 
 
   // Hide greeting when transcription and response are available
