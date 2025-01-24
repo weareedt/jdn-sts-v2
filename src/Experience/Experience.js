@@ -41,13 +41,13 @@ export default class Experience extends EventEmitter
         this.time = new Time()
         this.sizes = new Sizes()
         this.setConfig()
-        this.setStats()
+        // this.setStats()
         // this.setDebug()
         this.setScene()
         this.setCamera()
         this.setRenderer()
         this.setResources()
-        this.setMicrophone()
+        // this.setMicrophone()
         this.setWorld()
         
         this.sizes.on('resize', () =>
@@ -113,10 +113,10 @@ export default class Experience extends EventEmitter
         this.resources = new Resources(assets)
     }
 
-    setMicrophone()
-    {
-        this.microphone = new Microphone(this.setTranscription)
-    }
+    // setMicrophone()
+    // {
+    //     this.microphone = new Microphone(this.setTranscription)
+    // }
 
     setWorld()
     {
@@ -130,8 +130,8 @@ export default class Experience extends EventEmitter
         
         this.camera.update()
 
-        if(this.microphone)
-            this.microphone.update()
+        // if(this.microphone)
+        //     this.microphone.update()
 
         if(this.world)
             this.world.update()
@@ -166,17 +166,17 @@ export default class Experience extends EventEmitter
 
     destroy()
     {
-        if(this.microphone)
-        {
-            if(this.microphone.recorder)
-            {
-                this.microphone.stopRecording()
-            }
-            // Clean up audio context
-            if(this.microphone.audioContext)
-            {
-                this.microphone.audioContext.close()
-            }
-        }
+        // if(this.microphone)
+        // {
+        //     if(this.microphone.recorder)
+        //     {
+        //         this.microphone.stopRecording()
+        //     }
+        //     // Clean up audio context
+        //     if(this.microphone.audioContext)
+        //     {
+        //         this.microphone.audioContext.close()
+        //     }
+        // }
     }
 }
