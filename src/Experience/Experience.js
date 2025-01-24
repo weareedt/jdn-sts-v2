@@ -125,8 +125,8 @@ export default class Experience extends EventEmitter
 
     update()
     {
-        if(this.stats)
-            this.stats.update()
+        // if(this.stats)
+        //     this.stats.update()
         
         this.camera.update()
 

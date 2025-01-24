@@ -9,7 +9,7 @@ export default class Sphere
     constructor()
     {
         this.experience = new Experience()
-        this.debug = this.experience.debug
+        // this.debug = this.experience.debug
         this.scene = this.experience.scene
         this.time = this.experience.time
         this.updateCounter = 0;
@@ -17,19 +17,19 @@ export default class Sphere
         this.timeFrequency = 0.0003
         this.elapsedTime = 0
 
-        if(this.debug)
-        {
-            this.debugFolder = this.debug.addFolder({
-                title: 'sphere',
-                expanded: true
-            })
-
-            this.debugFolder.addInput(
-                this,
-                'timeFrequency',
-                { min: 0, max: 0.001, step: 0.000001 }
-            )
-        }
+        // if(this.debug)
+        // {
+        //     this.debugFolder = this.debug.addFolder({
+        //         title: 'sphere',
+        //         expanded: true
+        //     })
+        //
+        //     this.debugFolder.addInput(
+        //         this,
+        //         'timeFrequency',
+        //         { min: 0, max: 0.001, step: 0.000001 }
+        //     )
+        // }
         
         this.setVariations()
         this.setGeometry()
@@ -147,63 +147,63 @@ export default class Sphere
 
         this.lights.b.spherical = new THREE.Spherical(1, 2.561, - 1.844)
 
-        // Debug
-        if(this.debug)
-        {
-            for(const _lightName in this.lights)
-            {
-                const light = this.lights[_lightName]
-                
-                const debugFolder = this.debugFolder.addFolder({
-                    title: _lightName,
-                    expanded: true
-                })
-
-                debugFolder
-                    .addInput(
-                        light.color,
-                        'value',
-                        { view: 'color', label: 'color' }
-                    )
-                    .on('change', () =>
-                    {
-                        light.color.instance.set(light.color.value)
-                    })
-
-                debugFolder
-                    .addInput(
-                        light,
-                        'intensity',
-                        { min: 0, max: 10 }
-                    )
-                    .on('change', () =>
-                    {
-                        this.material.uniforms[`uLight${_lightName.toUpperCase()}Intensity`].value = light.intensity
-                    })
-
-                debugFolder
-                    .addInput(
-                        light.spherical,
-                        'phi',
-                        { label: 'phi', min: 0, max: Math.PI, step: 0.001 }
-                    )
-                    .on('change', () =>
-                    {
-                        this.material.uniforms[`uLight${_lightName.toUpperCase()}Position`].value.setFromSpherical(light.spherical)
-                    })
-
-                debugFolder
-                    .addInput(
-                        light.spherical,
-                        'theta',
-                        { label: 'theta', min: - Math.PI, max: Math.PI, step: 0.001 }
-                    )
-                    .on('change', () =>
-                    {
-                        this.material.uniforms.uLightAPosition.value.setFromSpherical(light.spherical)
-                    })
-            }
-        }
+        // // Debug
+        // if(this.debug)
+        // {
+        //     for(const _lightName in this.lights)
+        //     {
+        //         const light = this.lights[_lightName]
+        //
+        //         const debugFolder = this.debugFolder.addFolder({
+        //             title: _lightName,
+        //             expanded: true
+        //         })
+        //
+        //         debugFolder
+        //             .addInput(
+        //                 light.color,
+        //                 'value',
+        //                 { view: 'color', label: 'color' }
+        //             )
+        //             .on('change', () =>
+        //             {
+        //                 light.color.instance.set(light.color.value)
+        //             })
+        //
+        //         debugFolder
+        //             .addInput(
+        //                 light,
+        //                 'intensity',
+        //                 { min: 0, max: 10 }
+        //             )
+        //             .on('change', () =>
+        //             {
+        //                 this.material.uniforms[`uLight${_lightName.toUpperCase()}Intensity`].value = light.intensity
+        //             })
+        //
+        //         debugFolder
+        //             .addInput(
+        //                 light.spherical,
+        //                 'phi',
+        //                 { label: 'phi', min: 0, max: Math.PI, step: 0.001 }
+        //             )
+        //             .on('change', () =>
+        //             {
+        //                 this.material.uniforms[`uLight${_lightName.toUpperCase()}Position`].value.setFromSpherical(light.spherical)
+        //             })
+        //
+        //         debugFolder
+        //             .addInput(
+        //                 light.spherical,
+        //                 'theta',
+        //                 { label: 'theta', min: - Math.PI, max: Math.PI, step: 0.001 }
+        //             )
+        //             .on('change', () =>
+        //             {
+        //                 this.material.uniforms.uLightAPosition.value.setFromSpherical(light.spherical)
+        //             })
+        //     }
+        // }
     }
 
     setOffset()
@@ -259,51 +259,51 @@ export default class Sphere
 
         this.material.uniforms.uLightAPosition.value.setFromSpherical(this.lights.a.spherical)
         this.material.uniforms.uLightBPosition.value.setFromSpherical(this.lights.b.spherical)
-        
-        if(this.debug)
-        {
-            this.debugFolder.addInput(
-                this.material.uniforms.uDistortionFrequency,
-                'value',
-                { label: 'uDistortionFrequency', min: 0, max: 10, step: 0.01 }
-            )
-            
-            this.debugFolder.addInput(
-                this.material.uniforms.uDistortionStrength,
-                'value',
-                { label: 'uDistortionStrength', min: 0, max: 10, step: 0.01 }
-            )
-            
-            this.debugFolder.addInput(
-                this.material.uniforms.uDisplacementFrequency,
-                'value',
-                { label: 'uDisplacementFrequency', min: 0, max: 5, step: 0.01 }
-            )
-            
-            this.debugFolder.addInput(
-                this.material.uniforms.uDisplacementStrength,
-                'value',
-                { label: 'uDisplacementStrength', min: 0, max: 1, step: 0.01 }
-            )
-            
-            this.debugFolder.addInput(
-                this.material.uniforms.uFresnelOffset,
-                'value',
-                { label: 'uFresnelOffset', min: - 2, max: 2, step: 0.01 }
-            )
-            
-            this.debugFolder.addInput(
-                this.material.uniforms.uFresnelMultiplier,
-                'value',
-                { label: 'uFresnelMultiplier', min: 0, max: 5, step: 0.01 }
-            )
-            
-            this.debugFolder.addInput(
-                this.material.uniforms.uFresnelPower,
-                'value',
-                { label: 'uFresnelPower', min: 0, max: 5, step: 0.01 }
-            )
-        }
+        //
+        // if(this.debug)
+        // {
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uDistortionFrequency,
+        //         'value',
+        //         { label: 'uDistortionFrequency', min: 0, max: 10, step: 0.01 }
+        //     )
+        //
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uDistortionStrength,
+        //         'value',
+        //         { label: 'uDistortionStrength', min: 0, max: 10, step: 0.01 }
+        //     )
+        //
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uDisplacementFrequency,
+        //         'value',
+        //         { label: 'uDisplacementFrequency', min: 0, max: 5, step: 0.01 }
+        //     )
+        //
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uDisplacementStrength,
+        //         'value',
+        //         { label: 'uDisplacementStrength', min: 0, max: 1, step: 0.01 }
+        //     )
+        //
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uFresnelOffset,
+        //         'value',
+        //         { label: 'uFresnelOffset', min: - 2, max: 2, step: 0.01 }
+        //     )
+        //
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uFresnelMultiplier,
+        //         'value',
+        //         { label: 'uFresnelMultiplier', min: 0, max: 5, step: 0.01 }
+        //     )
+        //
+        //     this.debugFolder.addInput(
+        //         this.material.uniforms.uFresnelPower,
+        //         'value',
+        //         { label: 'uFresnelPower', min: 0, max: 5, step: 0.01 }
+        //     )
+        // }
     }
 
     setMesh()
