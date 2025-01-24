@@ -12,6 +12,7 @@ export default class Sphere
         this.debug = this.experience.debug
         this.scene = this.experience.scene
         this.time = this.experience.time
+        this.updateCounter = 0;
 
         this.timeFrequency = 0.0003
         this.elapsedTime = 0
@@ -127,7 +128,7 @@ export default class Sphere
         // Light A
         this.lights.a = {}
 
-        this.lights.a.intensity = 1.85
+        this.lights.a.intensity = 1.2
 
         this.lights.a.color = {}
         this.lights.a.color.value = '#ff3e00'
@@ -138,7 +139,7 @@ export default class Sphere
         // Light B
         this.lights.b = {}
 
-        this.lights.b.intensity = 1.4
+        this.lights.b.intensity = 1.0
 
         this.lights.b.color = {}
         this.lights.b.color.value = '#0063ff'
@@ -215,7 +216,7 @@ export default class Sphere
 
     setGeometry()
     {
-        this.geometry = new THREE.SphereGeometry(1, 512, 512)
+        this.geometry = new THREE.SphereGeometry(1, 128, 128)
         this.geometry.computeTangents()
     }
 
@@ -237,9 +238,9 @@ export default class Sphere
                 uOffset: { value: new THREE.Vector3() },
 
                 uDistortionFrequency: { value: 1.5 },
-                uDistortionStrength: { value: 0.65 },
+                uDistortionStrength: { value: 0.3 },
                 uDisplacementFrequency: { value: 2.120 },
-                uDisplacementStrength: { value: 0.152 },
+                uDisplacementStrength: { value: 0.08 },
 
                 uFresnelOffset: { value: -1.609 },
                 uFresnelMultiplier: { value: 3.587 },
@@ -264,43 +265,43 @@ export default class Sphere
             this.debugFolder.addInput(
                 this.material.uniforms.uDistortionFrequency,
                 'value',
-                { label: 'uDistortionFrequency', min: 0, max: 10, step: 0.001 }
+                { label: 'uDistortionFrequency', min: 0, max: 10, step: 0.01 }
             )
             
             this.debugFolder.addInput(
                 this.material.uniforms.uDistortionStrength,
                 'value',
-                { label: 'uDistortionStrength', min: 0, max: 10, step: 0.001 }
+                { label: 'uDistortionStrength', min: 0, max: 10, step: 0.01 }
             )
             
             this.debugFolder.addInput(
                 this.material.uniforms.uDisplacementFrequency,
                 'value',
-                { label: 'uDisplacementFrequency', min: 0, max: 5, step: 0.001 }
+                { label: 'uDisplacementFrequency', min: 0, max: 5, step: 0.01 }
             )
             
             this.debugFolder.addInput(
                 this.material.uniforms.uDisplacementStrength,
                 'value',
-                { label: 'uDisplacementStrength', min: 0, max: 1, step: 0.001 }
+                { label: 'uDisplacementStrength', min: 0, max: 1, step: 0.01 }
             )
             
             this.debugFolder.addInput(
                 this.material.uniforms.uFresnelOffset,
                 'value',
-                { label: 'uFresnelOffset', min: - 2, max: 2, step: 0.001 }
+                { label: 'uFresnelOffset', min: - 2, max: 2, step: 0.01 }
             )
             
             this.debugFolder.addInput(
                 this.material.uniforms.uFresnelMultiplier,
                 'value',
-                { label: 'uFresnelMultiplier', min: 0, max: 5, step: 0.001 }
+                { label: 'uFresnelMultiplier', min: 0, max: 5, step: 0.01 }
             )
             
             this.debugFolder.addInput(
                 this.material.uniforms.uFresnelPower,
                 'value',
-                { label: 'uFresnelPower', min: 0, max: 5, step: 0.001 }
+                { label: 'uFresnelPower', min: 0, max: 5, step: 0.01 }
             )
         }
     }
@@ -311,38 +312,54 @@ export default class Sphere
         this.scene.add(this.mesh)
     }
 
-    update()
-    {
-        // Update variations
-        for(let _variationName in this.variations)
-        {
-            const variation = this.variations[_variationName]
-            variation.target = AudioService.isActive() ? variation.getValue() : variation.getDefault()
-            
-            const easing = variation.target > variation.current ? variation.upEasing : variation.downEasing
-            variation.current += (variation.target - variation.current) * easing * this.time.delta
+    update() {
+        this.updateCounter++;
+        if (this.updateCounter % 2 === 0) { // Skip every other frame
+            return;
         }
 
-        // Time
-        this.timeFrequency = this.variations.lowLevel.current
-        this.elapsedTime = this.time.delta * this.timeFrequency
+        for (let _variationName in this.variations) {
+            const variation = this.variations[_variationName];
+            variation.target = AudioService.isActive()
+              ? variation.getValue()
+              : variation.getDefault();
 
-        //Comment these for idle animation
-        // Update material
-        //this.material.uniforms.uDisplacementStrength.value = this.variations.volume.current 
-        //this.material.uniforms.uDistortionStrength.value = this.variations.highLevel.current
-        //this.material.uniforms.uFresnelMultiplier.value = this.variations.mediumLevel.current
+            const easing =
+              variation.target > variation.current
+                ? variation.upEasing
+                : variation.downEasing;
+            variation.current +=
+              (variation.target - variation.current) *
+              easing *
+              this.time.delta;
+        }
 
-        // Offset
-        const offsetTime = this.elapsedTime * 0.3
-        this.offset.spherical.phi = ((Math.sin(offsetTime * 0.001) * Math.sin(offsetTime * 0.00321)) * 0.5 + 0.5) * Math.PI
-        this.offset.spherical.theta = ((Math.sin(offsetTime * 0.0001) * Math.sin(offsetTime * 0.000321)) * 0.5 + 0.5) * Math.PI * 2
-        this.offset.direction.setFromSpherical(this.offset.spherical)
-        this.offset.direction.multiplyScalar(this.timeFrequency * 2)
+        // Reduced frequency for other calculations
+        this.timeFrequency = this.variations.lowLevel.current;
+        this.elapsedTime = this.time.delta * this.timeFrequency;
 
-        this.material.uniforms.uOffset.value.add(this.offset.direction)
+        // Light offset calculation
+        const offsetTime = this.elapsedTime * 0.3;
+        if (this.updateCounter % 5 === 0) {
+            this.offset.spherical.phi =
+              ((Math.sin(offsetTime * 0.001) *
+                  Math.sin(offsetTime * 0.00321)) *
+                0.5 +
+                0.5) *
+              Math.PI;
+            this.offset.spherical.theta =
+              ((Math.sin(offsetTime * 0.0001) *
+                  Math.sin(offsetTime * 0.000321)) *
+                0.5 +
+                0.5) *
+              Math.PI *
+              2;
+            this.offset.direction.setFromSpherical(this.offset.spherical);
+            this.offset.direction.multiplyScalar(this.timeFrequency * 2);
+            this.material.uniforms.uOffset.value.add(this.offset.direction);
+        }
 
-        // Time
-        this.material.uniforms.uTime.value += this.elapsedTime
+        // Time update for material
+        this.material.uniforms.uTime.value += this.elapsedTime;
     }
 }
