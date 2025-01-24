@@ -35,17 +35,30 @@ export default function ExperienceWrapper() {
   // Handle LLM query when transcription changes
   useEffect(() => {
     const queryLLM = async () => {
-      if (!transcription.trim()) return;
+      console.log('queryLLM: Function called');
 
+      // Check if transcription is empty
+      if (!transcription.trim()) {
+        console.log('queryLLM: Transcription is empty, exiting function');
+        return;
+      }
+
+      // Ensure the Push-to-Talk (PTT) state is active
       if (isPTTActiveRef) {
+        console.log('queryLLM: PTT is active, starting LLM query');
         try {
+          // Clear previous errors
           setError('');
-          // Get LLM response
+          console.log('queryLLM: Cleared previous error state');
+
+          // Step 1: Query LLM for a response
+          console.log(`queryLLM: Sending transcription to LLM: "${transcription}"`);
           const response = await ProxyService.post(transcription);
-          console.log('LLM response:', response.response.text);
+          console.log('queryLLM: LLM response received:', response.response.text);
           setLlmResponse(response.response.text);
 
-          // Get TTS audio for the response
+          // Step 2: Fetch TTS audio for the LLM response
+          console.log(`queryLLM: Fetching TTS audio for response: "${response.response.text}"`);
           const ttsResponse = await fetch(
             'https://jdn-relay.hiroshiaki.online:3001/api/tts',
             {
@@ -57,21 +70,36 @@ export default function ExperienceWrapper() {
             }
           );
 
-          console.log('TTS response:', ttsResponse);
+          console.log('queryLLM: TTS fetch response received:', ttsResponse);
 
+          // Step 3: Parse the TTS response
+          if (!ttsResponse.ok) {
+            throw new Error(`TTS service responded with status: ${ttsResponse.status}`);
+          }
           const { audio } = await ttsResponse.json();
+          console.log('queryLLM: TTS audio data extracted');
+
+          // Step 4: Play the TTS audio
+          console.log('queryLLM: Playing TTS audio');
           await AudioService.playAudio(audio);
 
+          // Reset PTT state
+          console.log('queryLLM: Resetting PTT state');
           setIsPTTActiveRef(false);
+
         } catch (error) {
-          console.error('LLM query error:', error);
+          // Log and set the error message
+          console.error('queryLLM: Error during LLM query or TTS handling:', error);
           setError(error.message);
         }
+      } else {
+        console.log('queryLLM: PTT is not active, skipping query');
       }
     };
 
     queryLLM();
   }, [transcription]);
+
 
   // Hide greeting when transcription and response are available
   useEffect(() => {

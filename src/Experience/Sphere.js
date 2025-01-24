@@ -237,10 +237,10 @@ export default class Sphere
 
                 uOffset: { value: new THREE.Vector3() },
 
-                uDistortionFrequency: { value: 1.5 },
+                uDistortionFrequency: { value: 0.5 },
                 uDistortionStrength: { value: 0.3 },
                 uDisplacementFrequency: { value: 2.120 },
-                uDisplacementStrength: { value: 0.08 },
+                uDisplacementStrength: { value: 0.1 },
 
                 uFresnelOffset: { value: -1.609 },
                 uFresnelMultiplier: { value: 3.587 },

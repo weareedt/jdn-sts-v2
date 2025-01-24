@@ -5,48 +5,78 @@ class AudioService {
     static levels = [0, 0, 0]; // Low, mid, high frequencies
 
     static async playAudio(base64Audio) {
+        console.log('playAudio: Start');
+
         try {
-            // Convert base64 to array buffer
-            const binaryString = atob(base64Audio);
+            // Step 1: Convert base64 string to binary
+            console.log('playAudio: Converting base64 to binary string');
+            let binaryString;
+            try {
+                binaryString = atob(base64Audio);
+            } catch (atobError) {
+                console.error('playAudio: Invalid base64 string. Ensure the input is correctly encoded.');
+                throw new Error(`Base64 decoding failed: ${atobError.message}`);
+            }
+
+            console.log('playAudio: Successfully converted base64 to binary string');
+
+            // Step 2: Convert binary string to Uint8Array
+            console.log('playAudio: Creating Uint8Array from binary string');
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i);
             }
+            console.log('playAudio: Uint8Array created successfully');
 
-            // Create audio context
+            // Step 3: Create AudioContext
+            console.log('playAudio: Creating AudioContext');
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
+
+            // Step 4: Decode audio data
+            console.log('playAudio: Decoding audio data');
+            let audioBuffer;
             try {
-                // Decode the audio data
-                const audioBuffer = await this.audioContext.decodeAudioData(bytes.buffer);
-                
-                // Create and setup audio nodes
-                const source = this.audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-
-                // Create analyzer
-                this.analyser = this.audioContext.createAnalyser();
-                this.analyser.fftSize = 1024;
-                this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-
-                // Connect nodes
-                source.connect(this.analyser);
-                this.analyser.connect(this.audioContext.destination);
-                
-                // Start playing
-                source.start(0);
-
-                // Start analyzing
-                this.startAnalyzing();
+                audioBuffer = await this.audioContext.decodeAudioData(bytes.buffer);
             } catch (decodeError) {
-                console.error('Error decoding audio:', decodeError);
-                throw new Error('Failed to decode audio data');
+                console.error('playAudio: Failed to decode audio data. Verify the format of the audio.');
+                throw new Error(`Audio decoding failed: ${decodeError.message}`);
             }
+            console.log('playAudio: Audio data decoded successfully');
+
+            // Step 5: Create and setup audio nodes
+            console.log('playAudio: Setting up audio nodes');
+            const source = this.audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+
+            // Step 6: Create analyser for audio visualization
+            console.log('playAudio: Creating analyser node');
+            this.analyser = this.audioContext.createAnalyser();
+            this.analyser.fftSize = 1024;
+            this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+            // Step 7: Connect nodes
+            console.log('playAudio: Connecting audio nodes');
+            source.connect(this.analyser);
+            this.analyser.connect(this.audioContext.destination);
+
+            // Step 8: Start audio playback
+            console.log('playAudio: Starting playback');
+            source.start(0);
+            console.log('playAudio: Playback started successfully');
+
+            // Step 9: Start audio analysis
+            console.log('playAudio: Starting audio analysis');
+            this.startAnalyzing();
+            console.log('playAudio: Audio analysis started successfully');
+
         } catch (error) {
-            console.error('Error playing audio:', error);
+            console.error('playAudio: Error occurred during audio playback:', error);
             throw error;
+        } finally {
+            console.log('playAudio: End');
         }
     }
+
 
     static startAnalyzing() {
         const analyze = () => {
