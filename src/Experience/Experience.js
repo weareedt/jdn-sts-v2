@@ -47,7 +47,7 @@ export default class Experience extends EventEmitter
         this.setCamera()
         this.setRenderer()
         this.setResources()
-        this.setMicrophone()
+        // this.setMicrophone()
         this.setWorld()
         
         this.sizes.on('resize', () =>
@@ -76,19 +76,19 @@ export default class Experience extends EventEmitter
 
     setStats()
     {
-        if(this.config.debug)
-        {
-            this.stats = new Stats(true)
-        }
+        // if(this.config.debug)
+        // {
+        //     this.stats = new Stats(true)
+        // }
     }
 
     setDebug()
     {
-        if(this.config.debug)
-        {
-            this.debug = new Pane()
-            this.debug.containerElem_.style.width = '320px'
-        }
+        // if(this.config.debug)
+        // {
+        //     this.debug = new Pane()
+        //     this.debug.containerElem_.style.width = '320px'
+        // }
     }
     
     setScene()
@@ -113,10 +113,10 @@ export default class Experience extends EventEmitter
         this.resources = new Resources(assets)
     }
 
-    setMicrophone()
-    {
-        this.microphone = new Microphone(this.setTranscription)
-    }
+    // setMicrophone()
+    // {
+        // this.microphone = new Microphone(this.setTranscription)
+    // }
 
     setWorld()
     {
