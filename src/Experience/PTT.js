@@ -105,8 +105,8 @@ export default function PTT({ setTranscription , setIsPTTActiveRef}) {
         const baseStyles = {
             position: 'fixed',
             right: '20px',
-            top: 'calc(50% - 20px)',
-            transform: 'translateY(-50%)',
+            top: 'calc(50% - 80px)',
+            transform: 'translateY(-0%)',
             width: '65px',
             height: '65px',
             backgroundColor: '#8B5CF6',
@@ -127,7 +127,7 @@ export default function PTT({ setTranscription , setIsPTTActiveRef}) {
                 return {
                     ...baseStyles,
                     backgroundColor: '#6D28D9',
-                    transform: 'translateY(-50%) scale(0.95)',
+                    transform: 'translateY(-0%) scale(0.95)',
                 };
             case 'processing':
                 return {

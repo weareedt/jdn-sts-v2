@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import ProxyService from '../services/ProxyService.js';
 import AudioService from '../services/AudioService.js';
 
@@ -10,61 +11,79 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
   const sendMessage = async () => {
     if (!message.trim() || isLoading || isTyping) return; // Prevent sending during typing
 
-    try {
       setIsLoading(true);
-      await AudioService.stopAudio();
 
-      // Update transcription with the text input
-      setTranscription(message);
+      try {
+        // Step 1: Stop audio
+        try {
+          await AudioService.stopAudio();
+        } catch (audioStopError) {
+          console.error('Error stopping audio:', audioStopError);
+          toast.error('Failed to stop the audio. Please try again.');
+          return; // Exit early if stopping audio fails
+        }
 
-      // Get LLM response
-      const response = await ProxyService.post(message);
-      console.log('Textinput LLM response:', response.response.text);
+        // Step 2: Update transcription and get LLM response
+        let response;
+        try {
+          setTranscription(message);
+          response = await ProxyService.post(message);
+          console.log('Textinput LLM response:', response.response.text);
+        } catch (llmError) {
+          console.error('Error getting LLM response:', llmError);
+          toast.error('Failed to get the response from the server. Please try again.');
+          return; // Exit early if LLM response fails
+        }
 
-      // Typewriter effect to show response character by character
-      const typeWriter = (text) => {
-        let index = 0;
-        setIsTyping(true); // Set typing state to true
-        const interval = setInterval(() => {
-          if (index < text.length) {
-            setLlmResponse((prev) => prev + text[index]);
-            index++;
-          } else {
-            clearInterval(interval);
-            setIsTyping(false); // Typing complete
-          }
-        }, 50); // Adjust typing speed (50ms per character)
-      };
+        // Step 3: Typewriter effect for LLM response
+        const typeWriter = (text) => {
+          let index = 0;
+          setIsTyping(true); // Set typing state to true
+          const interval = setInterval(() => {
+            if (index < text.length) {
+              setLlmResponse((prev) => prev + text[index]);
+              index++;
+            } else {
+              clearInterval(interval);
+              setIsTyping(false); // Typing complete
+            }
+          }, 50); // Adjust typing speed (50ms per character)
+        };
 
-      // Clear previous response and start the typewriter effect
-      setLlmResponse(''); // Clear existing response
-      typeWriter(response.response.text);
+        setLlmResponse(''); // Clear previous response
+        typeWriter(response.response.text);
 
-      // Get TTS audio for the response
-      const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: response.response.text }),
-        });
+        // Step 4: Fetch TTS audio and play it
+        try {
+          const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: response.response.text }),
+          });
 
-      const { audio } = await ttsResponse.json();
-      await AudioService.playAudio(audio);
+          const { audio } = await ttsResponse.json();
+          await AudioService.playAudio(audio);
+        } catch (ttsError) {
+          console.error('Error fetching or playing TTS audio:', ttsError);
+          toast.error('Failed to fetch or play the TTS audio. Please try again.');
+        }
 
-      // Clear input after successful send
-      setMessage('');
-      const textarea = document.querySelector('textarea'); // Select the textarea
-      if (textarea) {
-        textarea.style.height = '48px'; // Reset height to initial value
+        // Step 5: Clear input after successful send
+        setMessage('');
+        const textarea = document.querySelector('textarea'); // Select the textarea
+        if (textarea) {
+          textarea.style.height = '48px'; // Reset height to initial value
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        toast.error('An unexpected error occurred. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error sending message:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isLoading && !isTyping) {

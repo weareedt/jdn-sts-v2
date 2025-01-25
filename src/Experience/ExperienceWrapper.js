@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import Experience from './Experience.js';
 import ProxyService from '../services/ProxyService.js';
 import AudioService from '../services/AudioService.js';
@@ -131,7 +132,7 @@ export default function ExperienceWrapper() {
         } catch (error) {
           // Detailed error handling
           console.error('queryLLM: Error occurred during LLM query or TTS handling:', error);
-
+          toast.error('An error occurred while sending the message. Please try again.');
           // Set a user-friendly error message
           setError(
             error.message ||
@@ -302,6 +303,7 @@ export default function ExperienceWrapper() {
         </button>
 
       </div>
+      <ToastContainer />
     </>
   );
 }
