@@ -1,203 +1,211 @@
-import Experience from './Experience.js'
-import MesoliticaService from '../services/MesoliticaService.js'
-import RecordRTC from 'recordrtc'
+import Experience from './Experience.js';
+import MesoliticaService from '../services/MesoliticaService.js';
+import RecordRTC from 'recordrtc';
+import { toast } from 'react-toastify';
 
 export default class Microphone {
     constructor(setTranscription) {
-        this.debug = false // Default to false if Experience not available
-        this.ready = false
-        this.volume = 0
-        this.levels = []
-        this.isRecording = false
-        this.isProcessing = false
-        this.recorder = null
-        this.transcription = ''
-        this.setTranscription = setTranscription
+        this.debug = false;
+        this.ready = false;
+        this.volume = 0;
+        this.levels = [];
+        this.isRecording = false;
+        this.isProcessing = false;
+        this.recorder = null;
+        this.transcription = '';
+        this.setTranscription = setTranscription;
+        this.permissionGranted = localStorage.getItem('micPermission') === 'true';
 
-        // Try to get Experience instance if available
         if (Experience.instance) {
-            this.experience = Experience.instance
-            this.debug = this.experience.debug
+            this.experience = Experience.instance;
+            this.debug = this.experience.debug;
         }
 
-        navigator.mediaDevices
-            .getUserMedia({ 
-                audio: {
-                    channelCount: 1,
-                    sampleRate: 16000,
-                    echoCancellation: true,
-                    noiseSuppression: true
-                }
-            })
-            .then((_stream) => {
-                this.stream = _stream
-                this.init()
-                this.setupRecording()
+        this.requestMicrophoneAccess();
+    }
 
-                if (this.debug) {
-                    this.setSpectrum()
-                }
-            })
-            .catch((error) => {
-                console.error('Error accessing microphone:', error)
-            })
+    requestMicrophoneAccess() {
+        navigator.mediaDevices
+          .getUserMedia({
+              audio: {
+                  channelCount: 1,
+                  sampleRate: 16000,
+                  echoCancellation: true,
+                  noiseSuppression: true,
+              },
+          })
+          .then((_stream) => {
+              this.stream = _stream;
+              this.init();
+              this.setupRecording();
+              localStorage.setItem('micPermission', 'true');
+              toast.success('Microphone access granted. You can now record audio.');
+
+              if (this.debug) {
+                  this.setSpectrum();
+              }
+          })
+          .catch((error) => {
+              console.error('Error accessing microphone:', error);
+              localStorage.setItem('micPermission', 'false');
+
+              // Show appropriate pop-up based on error
+              if (error.name === 'NotAllowedError') {
+                  toast.error('Microphone access denied. Please enable permissions and refresh the page.');
+              } else if (error.name === 'NotFoundError') {
+                  toast.error('No microphone detected. Please connect a microphone and try again.');
+              } else {
+                  toast.error('An error occurred while accessing the microphone. Please try again.');
+              }
+          });
     }
 
     init() {
-        this.audioContext = new AudioContext()
-        this.mediaStreamSourceNode = this.audioContext.createMediaStreamSource(this.stream)
-        this.analyserNode = this.audioContext.createAnalyser()
-        this.analyserNode.fftSize = 256
-        this.mediaStreamSourceNode.connect(this.analyserNode)
-        this.floatTimeDomainData = new Float32Array(this.analyserNode.fftSize)
-        this.byteFrequencyData = new Uint8Array(this.analyserNode.fftSize)
-        this.ready = true
+        this.audioContext = new AudioContext();
+        this.mediaStreamSourceNode = this.audioContext.createMediaStreamSource(this.stream);
+        this.analyserNode = this.audioContext.createAnalyser();
+        this.analyserNode.fftSize = 256;
+        this.mediaStreamSourceNode.connect(this.analyserNode);
+        this.floatTimeDomainData = new Float32Array(this.analyserNode.fftSize);
+        this.byteFrequencyData = new Uint8Array(this.analyserNode.fftSize);
+        this.ready = true;
     }
 
     setupRecording() {
-        // Configure RecordRTC
         this.recorder = new RecordRTC(this.stream, {
             type: 'audio',
             mimeType: 'audio/webm;codecs=opus',
             recorderType: RecordRTC.StereoAudioRecorder,
             numberOfAudioChannels: 1,
-            desiredSampRate: 16000
-        })
+            desiredSampRate: 16000,
+        });
     }
 
     async processRecording(blob) {
         const bannedWord = [
-            'Terima kasih kerana menonton', 
+            'Terima kasih kerana menonton',
             'saya akan mencuba untuk melakukan ini',
             'Fuck',
             'Saya akan membunuh anda',
-        ]
+        ];
 
         try {
-            this.isProcessing = true
-            const transcription = await MesoliticaService.transcribeAudioStream(blob)
-            
+            this.isProcessing = true;
+            const transcription = await MesoliticaService.transcribeAudioStream(blob);
+
             if (transcription && this.setTranscription) {
-                if (bannedWord.some(word => transcription.toLowerCase().includes(word.toLowerCase()))) {
-                    console.log('Banned word detected, clearing transcription...')
-                    this.transcription = ''
-                    this.setTranscription('')
+                if (bannedWord.some((word) => transcription.toLowerCase().includes(word.toLowerCase()))) {
+                    console.log('Banned word detected, clearing transcription...');
+                    this.transcription = '';
+                    this.setTranscription('');
+                    toast.warning('Inappropriate words detected. Transcription cleared.');
                 } else {
-                    this.transcription = transcription
-                    console.log('Microphone received transcription:', this.transcription)
-                    this.setTranscription(this.transcription)
+                    this.transcription = transcription;
+                    console.log('Microphone received transcription:', this.transcription);
+                    this.setTranscription(this.transcription);
                 }
             }
         } catch (error) {
-            console.error('Transcription error:', error)
+            console.error('Transcription error:', error);
+            toast.error('An error occurred during transcription. Please try again.');
         } finally {
-            this.isProcessing = false
-            this.setupRecording()
+            this.isProcessing = false;
+            this.setupRecording();
         }
     }
 
     startRecording() {
-        if (!this.isRecording && this.recorder && !this.isProcessing) {
-            this.isRecording = true
-            this.recorder.startRecording()
-            console.log('Recording started')
+        if (!this.permissionGranted) {
+            toast.error('Microphone access has not been granted. Please allow access and try again.');
+            return;
+        }
+
+        if (!this.ready || !this.recorder) {
+            toast.error('Microphone is not ready. Please refresh the page and try again.');
+            return;
+        }
+
+        if (this.isRecording) {
+            toast.warning('Recording is already in progress.');
+            return;
+        }
+
+        try {
+            this.isRecording = true;
+            this.recorder.startRecording();
+            console.log('Recording started');
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            this.isRecording = false;
+            toast.error('Failed to start recording. Please try again.');
         }
     }
 
     stopRecording() {
-        if (this.isRecording && this.recorder) {
-            this.isRecording = false
+        if (!this.isRecording || !this.recorder) {
+            toast.warning('No recording in progress to stop.');
+            return;
+        }
+
+        try {
+            this.isRecording = false;
             this.recorder.stopRecording(async () => {
-                const blob = this.recorder.getBlob()
-                console.log('Recording stopped, processing blob:', blob)
+                const blob = this.recorder.getBlob();
+                console.log('Recording stopped, processing blob:', blob);
+
                 if (blob && blob.size > 0) {
-                    await this.processRecording(blob)
+                    await this.processRecording(blob);
+                } else {
+                    toast.warning('Recording was empty. Please try again.');
                 }
-            })
+            });
+        } catch (error) {
+            console.error('Error stopping recording:', error);
+            toast.error('Failed to stop recording. Please try again.');
         }
     }
 
-    // setSpectrum() {
-    //     this.spectrum = {}
-    //     this.spectrum.width = this.analyserNode.fftSize
-    //     this.spectrum.height = 128
-    //     this.spectrum.halfHeight = Math.round(this.spectrum.height * 0.5)
-    //
-    //     this.spectrum.canvas = document.createElement('canvas')
-    //     this.spectrum.canvas.width = this.spectrum.width
-    //     this.spectrum.canvas.height = this.spectrum.height
-    //     this.spectrum.canvas.style.position = 'fixed'
-    //     this.spectrum.canvas.style.left = 0
-    //     this.spectrum.canvas.style.bottom = 0
-    //     document.body.append(this.spectrum.canvas)
-    //
-    //     this.spectrum.context = this.spectrum.canvas.getContext('2d')
-    //     this.spectrum.context.fillStyle = '#ffffff'
-    //
-    //     this.spectrum.update = () => {
-    //         this.spectrum.context.clearRect(0, 0, this.spectrum.width, this.spectrum.height)
-    //
-    //         for (let i = 0; i < this.analyserNode.fftSize; i++) {
-    //             const floatTimeDomainValue = this.floatTimeDomainData[i]
-    //             const byteFrequencyValue = this.byteFrequencyData[i]
-    //             const normalizeByteFrequencyValue = byteFrequencyValue / 255
-    //
-    //             const x = i
-    //             const y = this.spectrum.height - (normalizeByteFrequencyValue * this.spectrum.height)
-    //             const width = 1
-    //             const height = normalizeByteFrequencyValue * this.spectrum.height
-    //
-    //             this.spectrum.context.fillRect(x, y, width, height)
-    //         }
-    //     }
-    // }
-
     getLevels() {
-        const bufferLength = this.analyserNode.fftSize
-        const levelCount = 8
-        const levelBins = Math.floor(bufferLength / levelCount)
+        const bufferLength = this.analyserNode.fftSize;
+        const levelCount = 8;
+        const levelBins = Math.floor(bufferLength / levelCount);
 
-        const levels = []
-        let max = 0
-        
+        const levels = [];
+        let max = 0;
+
         for (let i = 0; i < levelCount; i++) {
-            let sum = 0
+            let sum = 0;
 
             for (let j = 0; j < levelBins; j++) {
-                sum += this.byteFrequencyData[(i * levelBins) + j]
+                sum += this.byteFrequencyData[i * levelBins + j];
             }
 
-            const value = sum / levelBins / 256
-            levels[i] = value
+            const value = sum / levelBins / 256;
+            levels[i] = value;
 
-            if (value > max)
-                max = value
+            if (value > max) max = value;
         }
 
-        return levels
+        return levels;
     }
 
     getVolume() {
-        let sumSquares = 0.0
+        let sumSquares = 0.0;
         for (const amplitude of this.floatTimeDomainData) {
-            sumSquares += amplitude * amplitude
+            sumSquares += amplitude * amplitude;
         }
-        return Math.sqrt(sumSquares / this.floatTimeDomainData.length)
+        return Math.sqrt(sumSquares / this.floatTimeDomainData.length);
     }
 
     update() {
-        if (!this.ready)
-            return
+        if (!this.ready) return;
 
-        // Retrieve audio data
-        this.analyserNode.getByteFrequencyData(this.byteFrequencyData)
-        this.analyserNode.getFloatTimeDomainData(this.floatTimeDomainData)
-        
-        this.volume = this.getVolume()
-        this.levels = this.getLevels()
+        this.analyserNode.getByteFrequencyData(this.byteFrequencyData);
+        this.analyserNode.getFloatTimeDomainData(this.floatTimeDomainData);
 
-        // Spectrum
-        if (this.spectrum)
-            this.spectrum.update()
+        this.volume = this.getVolume();
+        this.levels = this.getLevels();
+
+        if (this.spectrum) this.spectrum.update();
     }
 }
