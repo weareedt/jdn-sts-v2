@@ -15,12 +15,41 @@ export default function ExperienceWrapper() {
   const [isGreeting, setIsGreeting] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
 
+  // Debugging: Log transcription whenever it changes
+  useEffect(() => {
+    console.log('Updated transcription:', transcription);
+  }, [transcription]);
+
+  // Prevent user zooming (scroll/pinch) interactions
+  useEffect(() => {
+    const handleWheel = (e) => e.preventDefault(); // Disable scroll zoom
+    const handleTouchMove = (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault(); // Disable pinch zoom
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+        container.removeEventListener('touchmove', handleTouchMove);
+      }
+    };
+  }, []);
+
   // Initialize Experience on component mount
   useEffect(() => {
     if (containerRef.current && !experienceRef.current) {
       experienceRef.current = new Experience({
         targetElement: containerRef.current,
         setTranscription: setTranscription,
+        useCamera: true, // Disable camera for current release
       });
     }
 
@@ -117,8 +146,6 @@ export default function ExperienceWrapper() {
     queryLLM();
   }, [transcription]);
 
-
-
   // Hide greeting when transcription and response are available
   useEffect(() => {
     if (transcription || llmResponse) {
@@ -133,16 +160,16 @@ export default function ExperienceWrapper() {
 
   return (
     <>
-      <div 
-        ref={containerRef} 
+      <div
+        ref={containerRef}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           width: '100%',
-          height:  '100%',
+          height: '100%',
           zIndex: 1,
-          backgroundColor: '#000'
+          backgroundColor: '#000',
         }}
       ></div>
       {isGreeting && (
@@ -155,79 +182,77 @@ export default function ExperienceWrapper() {
             width: '100%',
             height: '10vh',
             display: 'block',
-            overflowY: 'auto',
             color: 'white',
             padding: '10px',
-            borderRadius: '5px',
             fontSize: '1rem',
             zIndex: 1000,
             textAlign: 'center',
-            overflowY: 'auto',
           }}
         >
           Hi, Saya Terra. Ada apa-apa saya boleh bantu?
         </p>
       )}
+      {/*{llmResponse && (*/}
+      {/*  <p*/}
+      {/*    className="response"*/}
+      {/*    style={{*/}
+      {/*      position: 'fixed',*/}
+      {/*      top: '65vh', // Position from the top of the viewport*/}
+      {/*      width: '90%', // Use 90% of the screen width for better responsiveness*/}
+      {/*      height: 'auto', // Allow dynamic height based on text*/}
+      {/*      maxHeight: '20vh', // Prevent it from taking too much vertical space*/}
+      {/*      overflowY: 'auto', // Add scroll if content overflows*/}
+      {/*      color: 'white',*/}
+      {/*      padding: '10px 20px', // Add horizontal and vertical padding for readability*/}
+      {/*      fontSize: '1.2rem', // Adjust font size to fit more characters*/}
+      {/*      lineHeight: '1.5', // Improve readability by increasing line spacing*/}
+      {/*      textAlign: 'justify', // Align the text for better appearance*/}
+      {/*      zIndex: 1000, // Ensure it remains above other elements*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    {llmResponse}*/}
+      {/*  </p>*/}
+      {/*)}*/}
+
       {llmResponse && (
-        <p
-          className="greeting"
+        <div
+          className="response-container"
           style={{
             position: 'fixed',
-            top: '25vh',
-            left: 0,
-            width: '100%',
-            height: '10vh',
-            display: 'block',
-            overflowY: 'auto',
+            top: '50%', // Vertically center
+            left: '50%', // Horizontally center
+            transform: 'translate(-50%, -50%)', // Offset to truly center the content
+            width: '90%', // Allow some margin for responsiveness
+            maxWidth: '800px', // Set a max width for better readability
+            height: 'auto', // Dynamic height for the content
+            maxHeight: '50vh', // Limit the height to prevent overflow
+            overflowY: 'auto', // Add scroll if content overflows
             color: 'white',
-            padding: '10px',
-            borderRadius: '5px',
-            fontSize: '1rem',
-            zIndex: 1000,
-            textAlign: 'center',
-            overflowY: 'auto',
-          }}
-        >
-          {transcription}
-        </p>
-      )}
-      {llmResponse && (
-        <p
-          className="response"
-          style={{
-            position: 'fixed',
-            top: '65vh',
-            right: 0,
-            width: '100%',
-            height: '10vh',
-            display: 'flex',
-            overflowY: 'auto',
-            color: 'white',
-            padding: '10px',
-            borderRadius: '5px',
-            fontSize: '1rem',
-            zIndex: 1000,
-            textAlign: 'center',
-            overflowY: 'auto',
+            padding: '20px', // Add padding for readability
+            fontSize: '1.2rem', // Adjust font size
+            lineHeight: '1.6', // Improve readability
+            textAlign: 'center', // Center-align the text
+            backgroundColor: 'rgba(0, 0, 0, 0.7)', // Optional: Add a semi-transparent background
+            borderRadius: '10px', // Optional: Add rounded corners
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for better visibility
+            zIndex: 1000, // Ensure it appears above other elements
           }}
         >
           {llmResponse}
-        </p>
+        </div>
       )}
+
+
       <div
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: '75vh',
-          left: 0,
           width: '100%',
           height: '20vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          padding: '0 20px',
-          gap: '20px',
           zIndex: 1000,
-          borderRadius: '12px',
         }}
       >
         {isVisible && (
@@ -244,20 +269,22 @@ export default function ExperienceWrapper() {
         <button
           onClick={toggleVisibility}
           style={{
-            position: 'absolute',
-            bottom: '25px',
-            right: '3vh',
-            width: '50px',
-            height: '50px',
+            position: 'fixed', // Make sure the position is fixed for consistency
+            right: '20px', // Align horizontally with the PTT button
+            top: 'calc(50% + 20px)', // Position it below the PTT button (90px accounts for the size + spacing)
+            width: '65px', // Match the size of the PTT button
+            height: '65px', // Match the size of the PTT button
             backgroundColor: '#8B5CF6',
             color: 'white',
             border: 'none',
-            borderRadius: '50%',
+            borderRadius: '50%', // Circular shape
             cursor: 'pointer',
-            zIndex: 1000,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: '0 4px 6px rgba(139, 92, 246, 0.3)',
+            transition: 'all 0.3s ease',
+            zIndex: 1000,
           }}
         >
           <svg
@@ -268,12 +295,12 @@ export default function ExperienceWrapper() {
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           >
-            <path d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
+            <path
+              d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
           </svg>
         </button>
+
       </div>
     </>
   );

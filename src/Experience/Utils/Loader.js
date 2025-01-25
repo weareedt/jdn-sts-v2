@@ -165,16 +165,19 @@ export default class Resources extends EventEmitter
     /**
      * File load end
      */
-    fileLoadEnd(_resource, _data)
-    {
-        this.loaded++
-        this.items[_resource.name] = _data
+    fileLoadEnd(_resource, _data) {
+        if (!_data) {
+            console.error(`Failed to load resource: ${_resource.name} from ${_resource.source}`);
+        }
 
-        this.trigger('fileEnd', [_resource, _data])
+        this.loaded++;
+        this.items[_resource.name] = _data || null; // Use `null` for failed resources
 
-        if(this.loaded === this.toLoad)
-        {
-            this.trigger('end')
+        this.trigger('fileEnd', [_resource, _data]);
+
+        if (this.loaded === this.toLoad) {
+            console.log(`All resources loaded: ${this.loaded}/${this.toLoad}`);
+            this.trigger('end');
         }
     }
 }

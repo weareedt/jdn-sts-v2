@@ -7,43 +7,43 @@
 </head>
 <body>
     <div id="root"></div>
-    <style>
-        .webcam-container {
-            position: fixed;
-            top: 5vh;
-            right: 5vw;
-            width: 15vh;
-            height: 20vh;
-            overflow: hidden;
-            z-index: 2;
-        }
-        .webcam-view {
-            width: 100%;
-            object-fit: cover;
-        }
-    </style>
-    <div class="webcam-container">
-        <video class="webcam-view" autoplay playsinline></video>
-    </div>
-    <script>
-        // Initialize webcam
-        async function initWebcam() {
-            try {
-                const video = document.querySelector('.webcam-view');
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: window.innerWidth },
-                        height: { ideal: window.innerHeight * 0.15 }
-                    } 
-                });
-                video.srcObject = stream;
-            } catch (err) {
-                console.error('Error accessing webcam:', err);
-            }
-        }
+<!--    <style>-->
+<!--        .webcam-container {-->
+<!--            position: fixed;-->
+<!--            top: 5vh;-->
+<!--            right: 5vw;-->
+<!--            width: 15vh;-->
+<!--            height: 20vh;-->
+<!--            overflow: hidden;-->
+<!--            z-index: 2;-->
+<!--        }-->
+<!--        .webcam-view {-->
+<!--            width: 100%;-->
+<!--            object-fit: cover;-->
+<!--        }-->
+<!--    </style>-->
+<!--    <div class="webcam-container">-->
+<!--        <video class="webcam-view" autoplay playsinline></video>-->
+<!--    </div>-->
+<!--    <script>-->
+<!--        // Initialize webcam-->
+<!--        async function initWebcam() {-->
+<!--            try {-->
+<!--                const video = document.querySelector('.webcam-view');-->
+<!--                const stream = await navigator.mediaDevices.getUserMedia({-->
+<!--                    video: {-->
+<!--                        width: { ideal: window.innerWidth },-->
+<!--                        height: { ideal: window.innerHeight * 0.15 }-->
+<!--                    }-->
+<!--                });-->
+<!--                video.srcObject = stream;-->
+<!--            } catch (err) {-->
+<!--                console.error('Error accessing webcam:', err);-->
+<!--            }-->
+<!--        }-->
 
-        // Start webcam when page loads
-        window.addEventListener('load', initWebcam);
-    </script>
+<!--        // Start webcam when page loads-->
+<!--        window.addEventListener('load', initWebcam);-->
+<!--    </script>-->
 </body>
 </html>

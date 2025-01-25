@@ -3,11 +3,16 @@ class AudioService {
     static analyser = null;
     static dataArray = null;
     static levels = [0, 0, 0]; // Low, mid, high frequencies
+    static currentSource = null; // Store the current AudioBufferSourceNode
+    static gainNode = null; // GainNode for volume control
 
     static async playAudio(base64Audio) {
         console.log('playAudio: Start');
 
         try {
+            // Stop the currently playing audio (if any)
+            this.stopAudio();
+
             // Step 1: Convert base64 string to binary
             console.log('playAudio: Converting base64 to binary string');
             let binaryString;
@@ -30,7 +35,9 @@ class AudioService {
 
             // Step 3: Create AudioContext
             console.log('playAudio: Creating AudioContext');
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
 
             // Step 4: Decode audio data
             console.log('playAudio: Decoding audio data');
@@ -48,23 +55,34 @@ class AudioService {
             const source = this.audioContext.createBufferSource();
             source.buffer = audioBuffer;
 
-            // Step 6: Create analyser for audio visualization
+            // Step 6: Create a GainNode for volume control
+            console.log('playAudio: Creating GainNode for volume control');
+            if (!this.gainNode) {
+                this.gainNode = this.audioContext.createGain();
+                this.gainNode.gain.value = 2.0; // Set gain to 100% of the current system volume
+            }
+
+            // Step 7: Create analyser for audio visualization
             console.log('playAudio: Creating analyser node');
             this.analyser = this.audioContext.createAnalyser();
             this.analyser.fftSize = 1024;
             this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
 
-            // Step 7: Connect nodes
+            // Step 8: Connect nodes
             console.log('playAudio: Connecting audio nodes');
-            source.connect(this.analyser);
+            source.connect(this.gainNode);
+            this.gainNode.connect(this.analyser);
             this.analyser.connect(this.audioContext.destination);
 
-            // Step 8: Start audio playback
+            // Save the current source for future control
+            this.currentSource = source;
+
+            // Step 9: Start audio playback
             console.log('playAudio: Starting playback');
             source.start(0);
             console.log('playAudio: Playback started successfully');
 
-            // Step 9: Start audio analysis
+            // Step 10: Start audio analysis
             console.log('playAudio: Starting audio analysis');
             this.startAnalyzing();
             console.log('playAudio: Audio analysis started successfully');
@@ -77,16 +95,30 @@ class AudioService {
         }
     }
 
+    static stopAudio() {
+        console.log('stopAudio: Stopping audio playback');
+        if (this.currentSource) {
+            try {
+                this.currentSource.stop(); // Stop the current audio source
+                console.log('stopAudio: Audio stopped successfully');
+            } catch (error) {
+                console.error('stopAudio: Error stopping audio:', error);
+            }
+            this.currentSource = null; // Clear the current source reference
+        } else {
+            console.log('stopAudio: No audio to stop');
+        }
+    }
 
     static startAnalyzing() {
         const analyze = () => {
             if (!this.analyser) return;
 
             this.analyser.getByteFrequencyData(this.dataArray);
-            
+
             // Calculate frequency bands
-            const bassEnd = Math.floor(this.analyser.frequencyBinCount * 0.1);    // First 10% for bass
-            const midEnd = Math.floor(this.analyser.frequencyBinCount * 0.5);     // Next 40% for mids
+            const bassEnd = Math.floor(this.analyser.frequencyBinCount * 0.1); // First 10% for bass
+            const midEnd = Math.floor(this.analyser.frequencyBinCount * 0.5); // Next 40% for mids
             // Remaining 50% for highs
 
             let bassSum = 0;
@@ -106,8 +138,8 @@ class AudioService {
             }
 
             // Update levels
-            this.levels[0] = bassSum / bassEnd;                           // Bass level
-            this.levels[1] = midSum / (midEnd - bassEnd);                // Mid level
+            this.levels[0] = bassSum / bassEnd; // Bass level
+            this.levels[1] = midSum / (midEnd - bassEnd); // Mid level
             this.levels[2] = highSum / (this.analyser.frequencyBinCount - midEnd); // High level
 
             // Request next frame

@@ -5,12 +5,14 @@ import AudioService from '../services/AudioService.js';
 export default function TextInput({ setTranscription, setLlmResponse }) {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false); // Track the typewriter effect
 
   const sendMessage = async () => {
-    if (!message.trim() || isLoading) return;
+    if (!message.trim() || isLoading || isTyping) return; // Prevent sending during typing
 
     try {
       setIsLoading(true);
+      await AudioService.stopAudio();
 
       // Update transcription with the text input
       setTranscription(message);
@@ -18,25 +20,45 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
       // Get LLM response
       const response = await ProxyService.post(message);
       console.log('Textinput LLM response:', response.response.text);
-      setLlmResponse(response.response.text);
+
+      // Typewriter effect to show response character by character
+      const typeWriter = (text) => {
+        let index = 0;
+        setIsTyping(true); // Set typing state to true
+        const interval = setInterval(() => {
+          if (index < text.length) {
+            setLlmResponse((prev) => prev + text[index]);
+            index++;
+          } else {
+            clearInterval(interval);
+            setIsTyping(false); // Typing complete
+          }
+        }, 50); // Adjust typing speed (50ms per character)
+      };
+
+      // Clear previous response and start the typewriter effect
+      setLlmResponse(''); // Clear existing response
+      typeWriter(response.response.text);
 
       // Get TTS audio for the response
-      const ttsResponse = await fetch(
-        'https://jdn-relay.hiroshiaki.online:3001/api/tts',
+      const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ text: response.response.text }),
-        }
-      );
+        });
 
       const { audio } = await ttsResponse.json();
       await AudioService.playAudio(audio);
 
       // Clear input after successful send
       setMessage('');
+      const textarea = document.querySelector('textarea'); // Select the textarea
+      if (textarea) {
+        textarea.style.height = '48px'; // Reset height to initial value
+      }
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -45,7 +67,8 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !isLoading) {
+    if (e.key === 'Enter' && !isLoading && !isTyping) {
+      e.preventDefault();
       sendMessage();
     }
   };
@@ -56,18 +79,16 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        position: 'relative',
         bottom: '40px',
         left: '0%',
         width: '100%',
-        padding: '0 10px',
+        paddingRight: '7px',
+        paddingLeft: '30px',
       }}
     >
-      <input
-        type="text"
+      <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
         placeholder="Apakah itu pendigitalan?"
         disabled={isLoading}
         style={{
@@ -77,59 +98,68 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
           backgroundColor: isLoading ? '#2a2a2a' : '#1a1a1a',
           color: 'white',
           fontSize: '1rem',
-          width: '100%',
+          width: 'calc(100% - 85px)', // Adjust width to accommodate the send button and spacing
           outline: 'none',
+          height: 'auto', // Allow dynamic height
+          minHeight: '48px', // Set a minimum height
+          overflow: 'hidden', // Completely remove the scrollbars
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           opacity: isLoading ? 0.7 : 1,
           cursor: isLoading ? 'not-allowed' : 'text',
+          resize: 'none', // Prevent manual resizing
+        }}
+        rows={1} // Start with a single row
+        onKeyDown={handleKeyPress}
+        onInput={(e) => {
+          e.target.style.height = 'auto'; // Reset height to allow recalculation
+          e.target.style.height = `${e.target.scrollHeight}px`; // Adjust height dynamically to fit content
         }}
       />
+
       <button
         onClick={sendMessage}
-        disabled={isLoading}
         style={{
-          width: '50px',
-          height: '50px',
+          width: '60px', // Match size of other buttons
+          height: '60px', // Match size
           padding: 0,
-          backgroundColor: isLoading ? '#6D28D9' : '#8B5CF6',
+          backgroundColor: isTyping || isLoading ? '#6D28D9' : '#8B5CF6', // Adjust color during typing/loading
           color: 'white',
           border: 'none',
           borderRadius: '50%',
-          cursor: isLoading ? 'not-allowed' : 'pointer',
+          cursor: isTyping || isLoading ? 'not-allowed' : 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: '0 4px 6px rgba(139, 92, 246, 0.3)',
           transition: 'all 0.3s ease',
-          flexShrink: 0,
-          animation: isLoading ? 'spin 2s linear infinite' : 'none',
+          animation: isTyping || isLoading ? 'spin 2s linear infinite' : 'none',
         }}
         onMouseOver={(e) => {
-          if (!isLoading) {
+          if (!isLoading && !isTyping) {
             e.currentTarget.style.backgroundColor = '#7C3AED';
             e.currentTarget.style.transform = 'scale(1.1)';
           }
         }}
         onMouseOut={(e) => {
-          if (!isLoading) {
+          if (!isLoading && !isTyping) {
             e.currentTarget.style.backgroundColor = '#8B5CF6';
             e.currentTarget.style.transform = 'scale(1)';
           }
         }}
         onMouseDown={(e) => {
-          if (!isLoading) {
+          if (!isLoading && !isTyping) {
             e.currentTarget.style.backgroundColor = '#6D28D9';
             e.currentTarget.style.transform = 'scale(0.95)';
           }
         }}
         onMouseUp={(e) => {
-          if (!isLoading) {
+          if (!isLoading && !isTyping) {
             e.currentTarget.style.backgroundColor = '#8B5CF6';
             e.currentTarget.style.transform = 'scale(1)';
           }
         }}
       >
-        {isLoading ? (
+        {isTyping || isLoading ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -141,8 +171,8 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M12 6v6l4 2"></path>
             <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
           </svg>
         ) : (
           <svg
@@ -163,11 +193,11 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
       </button>
       <style>
         {`
-                    @keyframes spin {
-                        from { transform: rotate(0deg); }
-                        to { transform: rotate(360deg); }
-                    }
-                `}
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `}
       </style>
     </div>
   );

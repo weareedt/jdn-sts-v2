@@ -105,7 +105,7 @@ export default function PTT({ setTranscription , setIsPTTActiveRef}) {
         const baseStyles = {
             position: 'fixed',
             right: '20px',
-            top: '50%',
+            top: 'calc(50% - 20px)',
             transform: 'translateY(-50%)',
             width: '65px',
             height: '65px',
