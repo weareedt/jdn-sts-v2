@@ -4,7 +4,15 @@ import RecordRTC from 'recordrtc';
 import { toast } from 'react-toastify';
 
 export default class Microphone {
+    static instance = null; // Ensure singleton
+    static micAccessRequested = false; // Track microphone access requests
+
     constructor(setTranscription) {
+        if (Microphone.instance) {
+            console.warn('Microphone instance already exists. Reusing the existing instance.');
+            return Microphone.instance;
+        }
+
         this.debug = false;
         this.ready = false;
         this.volume = 0;
@@ -21,10 +29,23 @@ export default class Microphone {
             this.debug = this.experience.debug;
         }
 
-        this.requestMicrophoneAccess();
+        // Assign singleton instance
+        Microphone.instance = this;
+
+        // Call requestMicrophoneAccess only if it hasn't been called
+        if (!Microphone.micAccessRequested) {
+            this.requestMicrophoneAccess();
+        }
     }
 
     requestMicrophoneAccess() {
+        // Prevent multiple calls
+        if (Microphone.micAccessRequested) {
+            console.warn('requestMicrophoneAccess has already been called. Skipping redundant calls.');
+            return;
+        }
+        Microphone.micAccessRequested = true;
+
         navigator.mediaDevices
           .getUserMedia({
               audio: {
@@ -36,24 +57,28 @@ export default class Microphone {
           })
           .then((_stream) => {
               this.stream = _stream;
+
+              // Initialize audio-related features
               this.init();
               this.setupRecording();
+
+              // Save permission status and notify the user
               localStorage.setItem('micPermission', 'true');
               toast.success('Microphone access granted. You can now record audio.');
 
               if (this.debug) {
+                  console.log('Debug mode enabled. Initializing spectrum...');
                   this.setSpectrum();
               }
           })
           .catch((error) => {
               console.error('Error accessing microphone:', error);
+
+              // Save permission status and handle errors
               localStorage.setItem('micPermission', 'false');
 
-              // Show appropriate pop-up based on error
               if (error.name === 'NotAllowedError') {
                   toast.error('Microphone access denied. Please enable permissions and refresh the page.');
-              } else if (error.name === 'NotFoundError') {
-                  toast.error('No microphone detected. Please connect a microphone and try again.');
               } else {
                   toast.error('An error occurred while accessing the microphone. Please try again.');
               }
@@ -115,10 +140,6 @@ export default class Microphone {
     }
 
     startRecording() {
-        if (!this.permissionGranted) {
-            toast.error('Microphone access has not been granted. Please allow access and try again.');
-            return;
-        }
 
         if (!this.ready || !this.recorder) {
             toast.error('Microphone is not ready. Please refresh the page and try again.');

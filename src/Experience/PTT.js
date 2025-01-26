@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Microphone from './Microphone.js';
 
-export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping }) {
+export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isVisible }) {
     const microphoneRef = useRef(null);
     const isPTTActiveRef = useRef(false);
     const [buttonState, setButtonState] = useState('idle');
@@ -108,14 +108,13 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping }) {
             position: 'fixed',
             right: '20px',
             top: 'calc(50% - 80px)',
-            transform: 'translateY(-0%)',
             width: '65px',
             height: '65px',
             backgroundColor: '#8B5CF6',
             color: 'white',
             border: 'none',
             borderRadius: '50%',
-            cursor: 'pointer',
+            cursor: buttonState === 'typing' || buttonState === 'processing' ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -126,23 +125,14 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping }) {
 
         switch (buttonState) {
             case 'recording':
-                return {
-                    ...baseStyles,
-                    backgroundColor: '#6D28D9',
-                    transform: 'translateY(-0%) scale(0.95)',
-                };
+                return { ...baseStyles, backgroundColor: '#6D28D9', transform: 'scale(0.95)' };
             case 'processing':
+            case 'typing':
                 return {
                     ...baseStyles,
                     backgroundColor: '#7C3AED',
                     animation: 'spin 2s linear infinite',
-                };
-            case 'typing':
-                return {
-                    ...baseStyles,
-                    backgroundColor: '#6D28D9',
-                    transform: 'translateY(-0%) scale(0.95)',
-                    animation: 'spin 2s linear infinite',
+                    ...(!isVisible && { right: '-10px' }), // Apply right: '-10px' only if isVisible is true
                 };
             default:
                 return baseStyles;

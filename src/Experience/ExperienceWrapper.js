@@ -301,7 +301,8 @@ export default function ExperienceWrapper() {
           />
         )}
 
-        <PTT setTranscription={setTranscription} setIsPTTActiveRef={setIsPTTActiveRef} isTyping={isTyping} />
+
+        <PTT setTranscription={setTranscription} setIsPTTActiveRef={setIsPTTActiveRef} isTyping={isTyping} isVisible={isVisible}  />
 
 
         <button

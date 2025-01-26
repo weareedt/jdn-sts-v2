@@ -59,8 +59,10 @@ class AudioService {
             console.log('playAudio: Creating GainNode for volume control');
             if (!this.gainNode) {
                 this.gainNode = this.audioContext.createGain();
-                this.gainNode.gain.value = 2.0; // Set gain to 100% of the current system volume
             }
+
+            this.setVolumeMultiplier(4.0)
+
 
             // Step 7: Create analyser for audio visualization
             console.log('playAudio: Creating analyser node');
@@ -100,7 +102,10 @@ class AudioService {
         if (this.currentSource) {
             try {
                 this.currentSource.stop(); // Stop the current audio source
-                console.log('stopAudio: Audio stopped successfully');
+                this.currentSource.disconnect(); // Disconnect the source
+                if (this.gainNode) this.gainNode.disconnect(); // Disconnect the GainNode
+                if (this.analyser) this.analyser.disconnect(); // Disconnect the AnalyserNode
+                console.log('stopAudio: Audio stopped and nodes disconnected successfully');
             } catch (error) {
                 console.error('stopAudio: Error stopping audio:', error);
             }
@@ -156,6 +161,16 @@ class AudioService {
     static isActive() {
         return this.audioContext !== null && this.analyser !== null;
     }
+
+    static setVolumeMultiplier(multiplier) {
+        if (this.gainNode) {
+            this.gainNode.gain.value = multiplier;
+            console.log(`Volume multiplier set to: ${multiplier}`);
+        } else {
+            console.warn('GainNode is not initialized yet.');
+        }
+    }
+
 }
 
 export default AudioService;
