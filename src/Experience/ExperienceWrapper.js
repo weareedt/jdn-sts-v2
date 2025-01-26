@@ -211,6 +211,30 @@ export default function ExperienceWrapper() {
           Hi, Saya Terra. Ada apa-apa saya boleh bantu?
         </p>
       )}
+
+      {llmResponse && (
+        <p
+          className="greeting"
+          style={{
+            position: 'fixed',
+            top: '25vh',
+            left: 0,
+            width: '100%',
+            height: '10vh',
+            display: 'block',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            fontSize: '1rem',
+            zIndex: 1000,
+            textAlign: 'center',
+            overflowY: 'auto',
+          }}
+        >
+          {transcription}
+        </p>
+      )}
+
       {/*{llmResponse && (*/}
       {/*  <p*/}
       {/*    className="response"*/}
