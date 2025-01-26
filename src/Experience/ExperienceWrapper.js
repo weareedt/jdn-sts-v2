@@ -15,6 +15,8 @@ export default function ExperienceWrapper() {
   const [isPTTActiveRef, setIsPTTActiveRef] = useState(false);
   const [isGreeting, setIsGreeting] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
+  const [isTyping, setIsTyping] = useState(false); // Track the typewriter effect
+
 
   // Debugging: Log transcription whenever it changes
   useEffect(() => {
@@ -50,7 +52,6 @@ export default function ExperienceWrapper() {
       experienceRef.current = new Experience({
         targetElement: containerRef.current,
         setTranscription: setTranscription,
-        useCamera: true, // Disable camera for current release
       });
     }
 
@@ -79,6 +80,7 @@ export default function ExperienceWrapper() {
         try {
           // Clear previous errors
           setError('');
+          await AudioService.stopAudio();
           console.log('queryLLM: Cleared previous error state');
 
           // Step 1: Query LLM for a response
@@ -90,8 +92,24 @@ export default function ExperienceWrapper() {
           }
 
           console.log('queryLLM: LLM response received:', response.response.text);
-          setLlmResponse(response.response.text);
 
+          const typeWriter = (text) => {
+            let index = 0;
+            setIsTyping('typing'); // Set typing state to 'typing'
+            const interval = setInterval(() => {
+              if (index < text.length) {
+                setLlmResponse((prev) => prev + text[index]);
+                index++;
+              } else {
+                clearInterval(interval);
+                setIsTyping(false); // Typing complete, set to false
+              }
+            }, 50); // Adjust typing speed (50ms per character)
+          };
+
+
+          setLlmResponse(''); // Clear previous response
+          typeWriter(response.response.text);
           // Step 2: Fetch TTS audio for the LLM response
           console.log(`queryLLM: Fetching TTS audio for response: "${response.response.text}"`);
           const ttsResponse = await fetch(
@@ -220,22 +238,19 @@ export default function ExperienceWrapper() {
           className="response-container"
           style={{
             position: 'fixed',
-            top: '50%', // Vertically center
+            top: '70vh', // Vertically center
             left: '50%', // Horizontally center
             transform: 'translate(-50%, -50%)', // Offset to truly center the content
             width: '90%', // Allow some margin for responsiveness
-            maxWidth: '800px', // Set a max width for better readability
+            maxWidth: '2000px', // Set a max width for better readability
             height: 'auto', // Dynamic height for the content
-            maxHeight: '50vh', // Limit the height to prevent overflow
+            maxHeight: '60vh', // Limit the height to prevent overflow
             overflowY: 'auto', // Add scroll if content overflows
             color: 'white',
-            padding: '20px', // Add padding for readability
             fontSize: '1.2rem', // Adjust font size
             lineHeight: '1.6', // Improve readability
             textAlign: 'center', // Center-align the text
-            backgroundColor: 'rgba(0, 0, 0, 0.7)', // Optional: Add a semi-transparent background
             borderRadius: '10px', // Optional: Add rounded corners
-            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for better visibility
             zIndex: 1000, // Ensure it appears above other elements
           }}
         >
@@ -247,25 +262,23 @@ export default function ExperienceWrapper() {
       <div
         style={{
           position: 'fixed',
-          top: '75vh',
+          top: '80vh',
           width: '100%',
-          height: '20vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',
           zIndex: 1000,
         }}
       >
-        {isVisible && (
+        {(
           <TextInput
             setTranscription={setTranscription}
             setLlmResponse={setLlmResponse}
           />
         )}
-        <PTT
-          setTranscription={setTranscription}
-          setIsPTTActiveRef={setIsPTTActiveRef}
-        />
+
+        <PTT setTranscription={setTranscription} setIsPTTActiveRef={setIsPTTActiveRef} isTyping={isTyping} />
+
 
         <button
           onClick={toggleVisibility}
