@@ -14,7 +14,7 @@ export default function ExperienceWrapper() {
   const [error, setError] = useState('');
   const [isPTTActiveRef, setIsPTTActiveRef] = useState(false);
   const [isGreeting, setIsGreeting] = useState(true);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // Track the typewriter effect
 
 
@@ -259,7 +259,7 @@ export default function ExperienceWrapper() {
 
       {llmResponse && (
         <div
-          className="response-container"
+          className="response"
           style={{
             position: 'fixed',
             top: '70vh', // Vertically center
@@ -294,7 +294,7 @@ export default function ExperienceWrapper() {
           zIndex: 1000,
         }}
       >
-        {(
+        {isVisible && (
           <TextInput
             setTranscription={setTranscription}
             setLlmResponse={setLlmResponse}
