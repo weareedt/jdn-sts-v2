@@ -16,7 +16,7 @@ export default function ExperienceWrapper() {
   const [isGreeting, setIsGreeting] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [isTyping, setIsTyping] = useState(false); // Track the typewriter effect
-
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
 
   // Debugging: Log transcription whenever it changes
   useEffect(() => {
@@ -80,6 +80,7 @@ export default function ExperienceWrapper() {
         try {
           // Clear previous errors
           setError('');
+          setIsLoading(true);
           await AudioService.stopAudio();
           console.log('queryLLM: Cleared previous error state');
 
@@ -95,21 +96,21 @@ export default function ExperienceWrapper() {
 
           const typeWriter = (text) => {
             let index = 0;
-            setIsTyping('typing'); // Set typing state to 'typing'
+            setIsTyping(true); // Set typing state to true
             const interval = setInterval(() => {
               if (index < text.length) {
                 setLlmResponse((prev) => prev + text[index]);
                 index++;
               } else {
                 clearInterval(interval);
-                setIsTyping(false); // Typing complete, set to false
+                setIsTyping(false); // Typing complete
               }
-            }, 50); // Adjust typing speed (50ms per character)
+            }, 50);
           };
-
 
           setLlmResponse(''); // Clear previous response
           typeWriter(response.response.text);
+
           // Step 2: Fetch TTS audio for the LLM response
           console.log(`queryLLM: Fetching TTS audio for response: "${response.response.text}"`);
           const ttsResponse = await fetch(
@@ -123,7 +124,6 @@ export default function ExperienceWrapper() {
             }
           );
 
-          // Check TTS API response status
           if (!ttsResponse.ok) {
             const errorDetails = await ttsResponse.json().catch(() => ({}));
             console.error('queryLLM: TTS service error response:', errorDetails);
@@ -146,16 +146,15 @@ export default function ExperienceWrapper() {
           // Reset PTT state
           console.log('queryLLM: Resetting PTT state');
           setIsPTTActiveRef(false);
-
         } catch (error) {
-          // Detailed error handling
           console.error('queryLLM: Error occurred during LLM query or TTS handling:', error);
           toast.error('An error occurred while sending the message. Please try again.');
-          // Set a user-friendly error message
           setError(
             error.message ||
             'An unexpected error occurred while processing your request. Please try again later.'
           );
+        } finally {
+          setIsLoading(false);
         }
       } else {
         console.log('queryLLM: PTT is not active, skipping query');
@@ -235,53 +234,30 @@ export default function ExperienceWrapper() {
         </p>
       )}
 
-      {/*{llmResponse && (*/}
-      {/*  <p*/}
-      {/*    className="response"*/}
-      {/*    style={{*/}
-      {/*      position: 'fixed',*/}
-      {/*      top: '65vh', // Position from the top of the viewport*/}
-      {/*      width: '90%', // Use 90% of the screen width for better responsiveness*/}
-      {/*      height: 'auto', // Allow dynamic height based on text*/}
-      {/*      maxHeight: '20vh', // Prevent it from taking too much vertical space*/}
-      {/*      overflowY: 'auto', // Add scroll if content overflows*/}
-      {/*      color: 'white',*/}
-      {/*      padding: '10px 20px', // Add horizontal and vertical padding for readability*/}
-      {/*      fontSize: '1.2rem', // Adjust font size to fit more characters*/}
-      {/*      lineHeight: '1.5', // Improve readability by increasing line spacing*/}
-      {/*      textAlign: 'justify', // Align the text for better appearance*/}
-      {/*      zIndex: 1000, // Ensure it remains above other elements*/}
-      {/*    }}*/}
-      {/*  >*/}
-      {/*    {llmResponse}*/}
-      {/*  </p>*/}
-      {/*)}*/}
-
       {llmResponse && (
         <div
           className="response"
           style={{
             position: 'fixed',
-            top: '70vh', // Vertically center
-            left: '50%', // Horizontally center
-            transform: 'translate(-50%, -50%)', // Offset to truly center the content
-            width: '90%', // Allow some margin for responsiveness
-            maxWidth: '2000px', // Set a max width for better readability
-            height: 'auto', // Dynamic height for the content
-            maxHeight: '60vh', // Limit the height to prevent overflow
-            overflowY: 'auto', // Add scroll if content overflows
+            top: '70vh',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: '2000px',
+            height: 'auto',
+            maxHeight: '60vh',
+            overflowY: 'auto',
             color: 'white',
-            fontSize: '1.2rem', // Adjust font size
-            lineHeight: '1.6', // Improve readability
-            textAlign: 'center', // Center-align the text
-            borderRadius: '10px', // Optional: Add rounded corners
-            zIndex: 1000, // Ensure it appears above other elements
+            fontSize: '1.2rem',
+            lineHeight: '1.6',
+            textAlign: 'center',
+            borderRadius: '10px',
+            zIndex: 1000,
           }}
         >
           {llmResponse}
         </div>
       )}
-
 
       <div
         style={{
@@ -298,25 +274,34 @@ export default function ExperienceWrapper() {
           <TextInput
             setTranscription={setTranscription}
             setLlmResponse={setLlmResponse}
+            isTyping={isTyping}
+            setIsTyping={setIsTyping}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
           />
         )}
-
-
-        <PTT setTranscription={setTranscription} setIsPTTActiveRef={setIsPTTActiveRef} isTyping={isTyping} isVisible={isVisible}  />
-
+        <PTT
+          setTranscription={setTranscription}
+          setIsPTTActiveRef={setIsPTTActiveRef}
+          isTyping={isTyping}
+          setIsTyping={setIsTyping}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          isVisible={isVisible}
+        />
 
         <button
           onClick={toggleVisibility}
           style={{
-            position: 'fixed', // Make sure the position is fixed for consistency
-            right: '20px', // Align horizontally with the PTT button
-            top: 'calc(50% + 20px)', // Position it below the PTT button (90px accounts for the size + spacing)
-            width: '65px', // Match the size of the PTT button
-            height: '65px', // Match the size of the PTT button
+            position: 'fixed',
+            right: '20px',
+            top: 'calc(50% + 20px)',
+            width: '65px',
+            height: '65px',
             backgroundColor: '#8B5CF6',
             color: 'white',
             border: 'none',
-            borderRadius: '50%', // Circular shape
+            borderRadius: '50%',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -339,7 +324,6 @@ export default function ExperienceWrapper() {
               d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
           </svg>
         </button>
-
       </div>
       <ToastContainer />
     </>

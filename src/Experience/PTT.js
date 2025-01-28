@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Microphone from './Microphone.js';
 
-export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isVisible }) {
+export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, setIsTyping, isLoading, setIsLoading, isVisible }) {
     const microphoneRef = useRef(null);
     const isPTTActiveRef = useRef(false);
     const [buttonState, setButtonState] = useState('idle');
@@ -66,7 +66,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isV
     }, []);
 
     const handleMouseDown = () => {
-        if (!isPTTActiveRef.current && microphoneRef.current && !microphoneRef.current.isProcessing) {
+        if (!isPTTActiveRef.current && microphoneRef.current && !microphoneRef.current.isProcessing && !isTyping && !isLoading) {
             isPTTActiveRef.current = true;
             microphoneRef.current.startRecording();
             setButtonState('recording');
@@ -114,7 +114,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isV
             color: 'white',
             border: 'none',
             borderRadius: '50%',
-            cursor: buttonState === 'typing' || buttonState === 'processing' ? 'not-allowed' : 'pointer',
+            cursor: buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -127,12 +127,18 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isV
             case 'recording':
                 return { ...baseStyles, backgroundColor: '#6D28D9', transform: 'scale(0.95)' };
             case 'processing':
+                return {
+                    ...baseStyles,
+                    backgroundColor: '#7C3AED',
+                    animation: 'spin 2s linear infinite',
+                    ...(!isVisible && { right: '-10px' }),
+                };
             case 'typing':
                 return {
                     ...baseStyles,
                     backgroundColor: '#7C3AED',
                     animation: 'spin 2s linear infinite',
-                    ...(!isVisible && { right: '-10px' }), // Apply right: '-10px' only if isVisible is true
+                    ...(!isVisible && { right: '-10px' }),
                 };
             default:
                 return baseStyles;
@@ -140,13 +146,15 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isV
     };
 
     useEffect(() => {
-        console.log('isTyping value:', isTyping);
-        if (isTyping === 'typing') {
+        console.log('isTyping value:', isTyping || isLoading);
+        if (isTyping || isLoading) {
             setButtonState('typing');
-        } else if (!isTyping) {
-            setButtonState('idle'); // Transition to idle when isTyping is false
         }
-    }, [isTyping]);
+        else {
+            setButtonState('idle');
+        }
+    }, [isTyping, isLoading]);
+
 
     return (
       <button
@@ -156,7 +164,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, isV
         onMouseLeave={handleMouseLeave}
         style={getButtonStyles()}
         dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
-        disabled={buttonState === 'typing' || buttonState === 'processing'} // Disable button during typing or processing
+        disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
       />
     );
 }

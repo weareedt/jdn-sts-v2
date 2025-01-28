@@ -3,87 +3,84 @@ import { toast, ToastContainer } from 'react-toastify';
 import ProxyService from '../services/ProxyService.js';
 import AudioService from '../services/AudioService.js';
 
-export default function TextInput({ setTranscription, setLlmResponse }) {
+export default function TextInput({ setTranscription, setLlmResponse, isTyping, setIsTyping, isLoading, setIsLoading }) {
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false); // Track the typewriter effect
 
   const sendMessage = async () => {
-    if (!message.trim() || isLoading || isTyping) return; // Prevent sending during typing
+    if (!message.trim() || isLoading || isTyping) return; // Prevent sending during typing or loading
 
-      setIsLoading(true);
+    setIsLoading(true);
 
+    try {
+      // Step 1: Stop audio
       try {
-        // Step 1: Stop audio
-        try {
-          await AudioService.stopAudio();
-        } catch (audioStopError) {
-          console.error('Error stopping audio:', audioStopError);
-          toast.error('Failed to stop the audio. Please try again.');
-          return; // Exit early if stopping audio fails
-        }
-
-        // Step 2: Update transcription and get LLM response
-        let response;
-        try {
-          setTranscription(message);
-          response = await ProxyService.post(message);
-          console.log('Textinput LLM response:', response.response.text);
-        } catch (llmError) {
-          console.error('Error getting LLM response:', llmError);
-          toast.error('Failed to get the response from the server. Please try again.');
-          return; // Exit early if LLM response fails
-        }
-
-        // Step 3: Typewriter effect for LLM response
-        const typeWriter = (text) => {
-          let index = 0;
-          setIsTyping(true); // Set typing state to true
-          const interval = setInterval(() => {
-            if (index < text.length) {
-              setLlmResponse((prev) => prev + text[index]);
-              index++;
-            } else {
-              clearInterval(interval);
-              setIsTyping(false); // Typing complete
-            }
-          }, 50); // Adjust typing speed (50ms per character)
-        };
-
-        setLlmResponse(''); // Clear previous response
-        typeWriter(response.response.text);
-
-        // Step 4: Fetch TTS audio and play it
-        try {
-          const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text: response.response.text }),
-          });
-
-          const { audio } = await ttsResponse.json();
-          await AudioService.playAudio(audio);
-        } catch (ttsError) {
-          console.error('Error fetching or playing TTS audio:', ttsError);
-          toast.error('Failed to fetch or play the TTS audio. Please try again.');
-        }
-
-        // Step 5: Clear input after successful send
-        setMessage('');
-        const textarea = document.querySelector('textarea'); // Select the textarea
-        if (textarea) {
-          textarea.style.height = '48px'; // Reset height to initial value
-        }
-      } catch (error) {
-        console.error('Unexpected error:', error);
-        toast.error('An unexpected error occurred. Please try again.');
-      } finally {
-        setIsLoading(false);
+        await AudioService.stopAudio();
+      } catch (audioStopError) {
+        console.error('Error stopping audio:', audioStopError);
+        toast.error('Failed to stop the audio. Please try again.');
+        return; // Exit early if stopping audio fails
       }
-    };
 
+      // Step 2: Update transcription and get LLM response
+      let response;
+      try {
+        setTranscription(message);
+        response = await ProxyService.post(message);
+        console.log('TextInput LLM response:', response.response.text);
+      } catch (llmError) {
+        console.error('Error getting LLM response:', llmError);
+        toast.error('Failed to get the response from the server. Please try again.');
+        return; // Exit early if LLM response fails
+      }
+
+      // Step 3: Typewriter effect for LLM response
+      const typeWriter = (text) => {
+        let index = 0;
+        setIsTyping(true); // Notify typing has started
+        const interval = setInterval(() => {
+          if (index < text.length) {
+            setLlmResponse((prev) => prev + text[index]);
+            index++;
+          } else {
+            clearInterval(interval);
+            setIsTyping(false); // Notify typing has finished
+          }
+        }, 50);
+      };
+
+      setLlmResponse(''); // Clear previous response
+      typeWriter(response.response.text);
+
+      // Step 4: Fetch TTS audio and play it
+      try {
+        const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: response.response.text }),
+        });
+
+        const { audio } = await ttsResponse.json();
+        await AudioService.playAudio(audio);
+      } catch (ttsError) {
+        console.error('Error fetching or playing TTS audio:', ttsError);
+        toast.error('Failed to fetch or play the TTS audio. Please try again.');
+      }
+
+      // Step 5: Clear input after successful send
+      setMessage('');
+      const textarea = document.querySelector('textarea'); // Select the textarea
+      if (textarea) {
+        textarea.style.height = '48px'; // Reset height to initial value
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isLoading && !isTyping) {
@@ -109,7 +106,7 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Apakah itu pendigitalan?"
-        disabled={isLoading}
+        disabled={isLoading || isTyping} // Disable input when typing or loading
         style={{
           padding: '12px 16px',
           borderRadius: '25px',
@@ -138,10 +135,10 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
       <button
         onClick={sendMessage}
         style={{
-          width: '60px', // Match size of other buttons
-          height: '60px', // Match size
+          width: '60px',
+          height: '60px',
           padding: 0,
-          backgroundColor: isTyping || isLoading ? '#6D28D9' : '#8B5CF6', // Adjust color during typing/loading
+          backgroundColor: isTyping || isLoading ? '#6D28D9' : '#8B5CF6',
           color: 'white',
           border: 'none',
           borderRadius: '50%',
@@ -153,30 +150,7 @@ export default function TextInput({ setTranscription, setLlmResponse }) {
           transition: 'all 0.3s ease',
           animation: isTyping || isLoading ? 'spin 2s linear infinite' : 'none',
         }}
-        onMouseOver={(e) => {
-          if (!isLoading && !isTyping) {
-            e.currentTarget.style.backgroundColor = '#7C3AED';
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }
-        }}
-        onMouseOut={(e) => {
-          if (!isLoading && !isTyping) {
-            e.currentTarget.style.backgroundColor = '#8B5CF6';
-            e.currentTarget.style.transform = 'scale(1)';
-          }
-        }}
-        onMouseDown={(e) => {
-          if (!isLoading && !isTyping) {
-            e.currentTarget.style.backgroundColor = '#6D28D9';
-            e.currentTarget.style.transform = 'scale(0.95)';
-          }
-        }}
-        onMouseUp={(e) => {
-          if (!isLoading && !isTyping) {
-            e.currentTarget.style.backgroundColor = '#8B5CF6';
-            e.currentTarget.style.transform = 'scale(1)';
-          }
-        }}
+        disabled={isTyping || isLoading} // Disable button when typing or loading
       >
         {isTyping || isLoading ? (
           <svg
