@@ -96,20 +96,21 @@ export default function ExperienceWrapper() {
 
           const typeWriter = (text) => {
             let index = 0;
-            setIsTyping(true); // Set typing state to true
+            let accumulatedText = ''; // Store the response locally
+            setIsTyping(true);
+            setLlmResponse('');
+
             const interval = setInterval(() => {
               if (index < text.length) {
-                setLlmResponse((prev) => prev + text[index]);
+                accumulatedText += text[index]; // Append to the local variable
+                setLlmResponse(accumulatedText); // Update state less frequently
                 index++;
               } else {
                 clearInterval(interval);
-                setIsTyping(false); // Typing complete
+                setTimeout(() => setIsTyping(false), 100);
               }
             }, 50);
           };
-
-          setLlmResponse(''); // Clear previous response
-          typeWriter(response.response.text);
 
           // Step 2: Fetch TTS audio for the LLM response
           console.log(`queryLLM: Fetching TTS audio for response: "${response.response.text}"`);
@@ -142,6 +143,7 @@ export default function ExperienceWrapper() {
           // Step 4: Play the TTS audio
           console.log('queryLLM: Playing TTS audio');
           await AudioService.playAudio(audio);
+          typeWriter(response.response.text);
 
           // Reset PTT state
           console.log('queryLLM: Resetting PTT state');

@@ -36,20 +36,21 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
       // Step 3: Typewriter effect for LLM response
       const typeWriter = (text) => {
         let index = 0;
-        setIsTyping(true); // Notify typing has started
+        let accumulatedText = ''; // Store the response locally
+        setIsTyping(true);
+        setLlmResponse('');
+
         const interval = setInterval(() => {
           if (index < text.length) {
-            setLlmResponse((prev) => prev + text[index]);
+            accumulatedText += text[index]; // Append to the local variable
+            setLlmResponse(accumulatedText); // Update state less frequently
             index++;
           } else {
             clearInterval(interval);
-            setIsTyping(false); // Notify typing has finished
+            setTimeout(() => setIsTyping(false), 100);
           }
         }, 50);
       };
-
-      setLlmResponse(''); // Clear previous response
-      typeWriter(response.response.text);
 
       // Step 4: Fetch TTS audio and play it
       try {
@@ -63,6 +64,9 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
 
         const { audio } = await ttsResponse.json();
         await AudioService.playAudio(audio);
+        typeWriter(response.response.text);
+
+
       } catch (ttsError) {
         console.error('Error fetching or playing TTS audio:', ttsError);
         toast.error('Failed to fetch or play the TTS audio. Please try again.');
