@@ -7,94 +7,65 @@ class AudioService {
     static gainNode = null; // GainNode for volume control
 
     static async playAudio(base64Audio) {
-        console.log('playAudio: Start');
+        return new Promise(async (resolve, reject) => {
+            console.log('playAudio: Start');
 
-        try {
-            // Stop the currently playing audio (if any)
-            this.stopAudio();
-
-            // Step 1: Convert base64 string to binary
-            console.log('playAudio: Converting base64 to binary string');
-            let binaryString;
             try {
-                binaryString = atob(base64Audio);
-            } catch (atobError) {
-                console.error('playAudio: Invalid base64 string. Ensure the input is correctly encoded.');
-                throw new Error(`Base64 decoding failed: ${atobError.message}`);
+                // Stop currently playing audio (if any)
+                this.stopAudio();
+
+                let binaryString;
+                try {
+                    binaryString = atob(base64Audio);
+                } catch (atobError) {
+                    console.error('Invalid base64 string.');
+                    return reject(new Error(`Base64 decoding failed: ${atobError.message}`));
+                }
+
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                let audioBuffer;
+                try {
+                    audioBuffer = await this.audioContext.decodeAudioData(bytes.buffer);
+                } catch (decodeError) {
+                    return reject(new Error(`Audio decoding failed: ${decodeError.message}`));
+                }
+
+                const source = this.audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+
+                if (!this.gainNode) {
+                    this.gainNode = this.audioContext.createGain();
+                }
+
+                this.setVolumeMultiplier(4.0);
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 1024;
+                this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+                source.connect(this.gainNode);
+                this.gainNode.connect(this.analyser);
+                this.analyser.connect(this.audioContext.destination);
+                this.currentSource = source;
+
+                source.start(0);
+                this.startAnalyzing();
+
+                console.log('playAudio: Playback started successfully');
+                resolve(audioBuffer.duration * 1000); // Resolve with audio duration in milliseconds
+
+            } catch (error) {
+                console.error('Error during audio playback:', error);
+                reject(error);
             }
-
-            console.log('playAudio: Successfully converted base64 to binary string');
-
-            // Step 2: Convert binary string to Uint8Array
-            console.log('playAudio: Creating Uint8Array from binary string');
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            console.log('playAudio: Uint8Array created successfully');
-
-            // Step 3: Create AudioContext
-            console.log('playAudio: Creating AudioContext');
-            if (!this.audioContext) {
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
-            // Step 4: Decode audio data
-            console.log('playAudio: Decoding audio data');
-            let audioBuffer;
-            try {
-                audioBuffer = await this.audioContext.decodeAudioData(bytes.buffer);
-            } catch (decodeError) {
-                console.error('playAudio: Failed to decode audio data. Verify the format of the audio.');
-                throw new Error(`Audio decoding failed: ${decodeError.message}`);
-            }
-            console.log('playAudio: Audio data decoded successfully');
-
-            // Step 5: Create and setup audio nodes
-            console.log('playAudio: Setting up audio nodes');
-            const source = this.audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-
-            // Step 6: Create a GainNode for volume control
-            console.log('playAudio: Creating GainNode for volume control');
-            if (!this.gainNode) {
-                this.gainNode = this.audioContext.createGain();
-            }
-
-            this.setVolumeMultiplier(4.0)
-
-
-            // Step 7: Create analyser for audio visualization
-            console.log('playAudio: Creating analyser node');
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 1024;
-            this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-
-            // Step 8: Connect nodes
-            console.log('playAudio: Connecting audio nodes');
-            source.connect(this.gainNode);
-            this.gainNode.connect(this.analyser);
-            this.analyser.connect(this.audioContext.destination);
-
-            // Save the current source for future control
-            this.currentSource = source;
-
-            // Step 9: Start audio playback
-            console.log('playAudio: Starting playback');
-            source.start(0);
-            console.log('playAudio: Playback started successfully');
-
-            // Step 10: Start audio analysis
-            console.log('playAudio: Starting audio analysis');
-            this.startAnalyzing();
-            console.log('playAudio: Audio analysis started successfully');
-
-        } catch (error) {
-            console.error('playAudio: Error occurred during audio playback:', error);
-            throw error;
-        } finally {
-            console.log('playAudio: End');
-        }
+        });
     }
 
     static stopAudio() {

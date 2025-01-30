@@ -34,43 +34,42 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
       }
 
       // Step 3: Typewriter effect for LLM response
-      const typeWriter = (text) => {
+      const typeWriter = (text, charTime) => {
         let index = 0;
-        let accumulatedText = ''; // Store the response locally
+        let accumulatedText = '';
         setIsTyping(true);
         setLlmResponse('');
 
         const interval = setInterval(() => {
           if (index < text.length) {
-            accumulatedText += text[index]; // Append to the local variable
-            setLlmResponse(accumulatedText); // Update state less frequently
+            accumulatedText += text[index];
+            setLlmResponse(accumulatedText);
             index++;
           } else {
             clearInterval(interval);
             setTimeout(() => setIsTyping(false), 100);
           }
-        }, 50);
+        }, charTime); // Use dynamic time per character
       };
+
 
       // Step 4: Fetch TTS audio and play it
       try {
-        const ttsResponse = await fetch('https://jdn-relay.hiroshiaki.online:3001/api/tts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: response.response.text }),
-        });
+        const { audio } = await ProxyService.TTS(response.response.text);
 
-        const { audio } = await ttsResponse.json();
-        await AudioService.playAudio(audio);
-        typeWriter(response.response.text);
+        // Wait for audio to start and get duration
+        const duration = await AudioService.playAudio(audio);
 
+        // Calculate dynamic typing speed based on speech duration
+        const text = response.response.text;
+        const averageCharTime = duration / text.length; // Time per character
+        typeWriter(text, averageCharTime);
 
       } catch (ttsError) {
         console.error('Error fetching or playing TTS audio:', ttsError);
         toast.error('Failed to fetch or play the TTS audio. Please try again.');
       }
+
 
       // Step 5: Clear input after successful send
       setMessage('');

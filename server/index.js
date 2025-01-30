@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
+const multer = require('multer');
+const FormData = require('form-data');
 
 // Load environment variables
 dotenv.config();
@@ -10,12 +12,15 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Enable CORS for our React frontend
-app.use(cors());  // Allow all origins during development
-
-// Parse JSON bodies
+app.use(cors());
 app.use(express.json());
 
-// TTS endpoint
+// Configure Multer for file uploads (in-memory storage)
+const upload = multer({ storage: multer.memoryStorage() });
+
+/**
+ * Text-to-Speech (TTS) API
+ */
 app.post('/api/tts', async (req, res) => {
     try {
         const { text } = req.body;
@@ -26,7 +31,7 @@ app.post('/api/tts', async (req, res) => {
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': "sk_f34a70fc2e48b53b126d4a6a853808a706f87f177f1b9572"
+                'xi-api-key': process.env.ELEVENLABS_API_KEY // Secure API key storage
             },
             body: JSON.stringify({
                 text: text,
@@ -35,7 +40,6 @@ app.post('/api/tts', async (req, res) => {
                 similarity_boost: 1,
             })
         });
-        console.log('TTS response:', response);
 
         if (!response.ok) {
             throw new Error(`ElevenLabs API error: ${response.status}`);
@@ -50,13 +54,15 @@ app.post('/api/tts', async (req, res) => {
     }
 });
 
-// Proxy endpoint
+/**
+ * Forward Message API (LLM Proxy)
+ */
 app.post('/api/forward_message', async (req, res) => {
     try {
         const response = await fetch('https://aishah.jdn.gov.my/api/forward_message', {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTIzNDUifQ.E1MDASE64Q_yMqDZNzBX2nGZK78NRXUP8cJE2I8-wns',
+                'Authorization': `Bearer ${process.env.JDN_AISHAH_API_KEY}`, // Secure API key storage
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -73,6 +79,45 @@ app.post('/api/forward_message', async (req, res) => {
     }
 });
 
+// Audio Transcription Route
+app.post('/api/transcribe', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No audio file provided' });
+        }
+
+        const formData = new FormData();
+        formData.append('file', req.file.buffer, {
+            filename: 'audio.webm',
+            contentType: 'audio/webm;codecs=opus'
+        });
+        formData.append('model', 'base');
+        formData.append('language', 'ms');
+
+        const response = await fetch('https://api.mesolitica.com/audio/transcriptions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.MESOLITICA_API_KEY}`,
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Mesolitica API error: ${response.status} - ${errorText}`);
+        }
+
+        const transcription = await response.json();
+        res.json(transcription);
+    } catch (error) {
+        console.error('Transcription error:', error);
+        res.status(500).json({ error: 'Failed to transcribe audio' });
+    }
+});
+
+
+// Start the proxy server
 app.listen(PORT, () => {
     console.log(`Proxy server running on port ${PORT}`);
 });
