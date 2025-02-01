@@ -197,7 +197,7 @@ export default function ExperienceWrapper() {
           className="greeting"
           style={{
             position: 'fixed',
-            top: '25vh',
+            top: '20vh',
             left: 0,
             width: '100%',
             height: '10vh',
@@ -218,7 +218,7 @@ export default function ExperienceWrapper() {
           className="greeting"
           style={{
             position: 'fixed',
-            top: '25vh',
+            top: '20vh',
             left: 0,
             width: '100%',
             height: '10vh',
@@ -241,7 +241,7 @@ export default function ExperienceWrapper() {
           className="response"
           style={{
             position: 'fixed',
-            top: '70vh',
+            top: '60vh',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '90%',
@@ -264,7 +264,7 @@ export default function ExperienceWrapper() {
       <div
         style={{
           position: 'fixed',
-          top: '80vh',
+          top: '70vh',
           width: '100%',
           display: 'flex',
           alignItems: 'center',
@@ -297,7 +297,7 @@ export default function ExperienceWrapper() {
           style={{
             position: 'fixed',
             right: '20px',
-            top: 'calc(50% + 20px)',
+            top: 'calc(38%)',
             width: '65px',
             height: '65px',
             backgroundColor: '#8B5CF6',

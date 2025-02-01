@@ -107,7 +107,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
         const baseStyles = {
             position: 'fixed',
             right: '20px',
-            top: 'calc(50% - 80px)',
+            top: 'calc(38% - 80px)',
             width: '65px',
             height: '65px',
             backgroundColor: '#8B5CF6',

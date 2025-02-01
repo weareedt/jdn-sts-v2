@@ -162,6 +162,7 @@ export default class Sphere
         // Function: Combines geometry and material to create the sphere mesh.
         // Effect: Adds the sphere mesh to the scene for rendering.
         this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.position.set(0.06, 1, 0);
         this.scene.add(this.mesh)
     }
 

@@ -46,8 +46,9 @@ void main()
 {
     // Position
     vec3 displacedPosition = getDisplacedPosition(position);
-    vec4 viewPosition = viewMatrix * vec4(displacedPosition, 1.0);
-    gl_Position = projectionMatrix * viewPosition;
+    // Use modelViewMatrix to include mesh's world transform
+    vec4 mvPosition = modelViewMatrix * vec4(displacedPosition, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
 
     // Bi tangents
     float distanceA = (M_PI * 2.0) / uSubdivision.x;
