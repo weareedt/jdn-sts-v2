@@ -45,7 +45,7 @@ class AudioService {
                     this.gainNode = this.audioContext.createGain();
                 }
 
-                this.setVolumeMultiplier(4.0);
+                this.setVolumeMultiplier(parseFloat(process.env.REACT_APP_VOLUME_MULTIPLIER || 1.0));
                 this.analyser = this.audioContext.createAnalyser();
                 this.analyser.fftSize = 1024;
                 this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
