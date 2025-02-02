@@ -1,14 +1,16 @@
+const BASE_URL = process.env.REACT_APP_BASE_URL
+
 class ProxyService {
     static async post(message) {
-        const response = await fetch('http://localhost:3001/api/forward_message', {
+        const response = await fetch(`${BASE_URL}/api/forward_message`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 message: message,
-                session_id: '123456789'
-            })
+                session_id: '123456789',
+            }),
         });
 
         if (!response.ok) {
@@ -19,7 +21,7 @@ class ProxyService {
     }
 
     static async TTS(message) {
-        const response = await fetch('http://localhost:3001/api/tts', {
+        const response = await fetch(`${BASE_URL}/api/tts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,8 +38,7 @@ class ProxyService {
 
     static async AudioTranscribe(formData) {
         try {
-            // Send request to the proxy server with prepared formData
-            const response = await fetch('http://localhost:3001/api/transcribe', {
+            const response = await fetch(`${BASE_URL}/api/transcribe`, {
                 method: 'POST',
                 body: formData,
             });
@@ -53,7 +54,6 @@ class ProxyService {
             throw error;
         }
     }
-
 }
 
 export default ProxyService;
