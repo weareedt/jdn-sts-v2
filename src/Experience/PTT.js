@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Microphone from './Microphone.js';
-import e from 'express';
 
 export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, setIsTyping, isLoading, setIsLoading, isVisible }) {
   const microphoneRef = useRef(null);
