@@ -195,9 +195,9 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}  // Start recording
-      onTouchEnd={handleTouchEnd}      // Stop recording
-      onTouchCancel={handleTouchEnd}   // Ensure cleanup on touch cancel
+      onTouchStart={handleMouseDown}  // Start recording
+      onTouchEnd={handleMouseUp}      // Stop recording
+      onTouchCancel={handleMouseUp}   // Ensure cleanup on touch cancel
       style={getButtonStyles()}
       dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
       disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
