@@ -5,7 +5,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   const microphoneRef = useRef(null);
   const isPTTActiveRef = useRef(false);
   const [buttonState, setButtonState] = useState('idle');
-  const holdTimeoutRef = useRef(null);
+  const intervalRef = useRef(null);
 
   const icons = {
     idle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -80,7 +80,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
     if (isPTTActiveRef.current && microphoneRef.current) {
       isPTTActiveRef.current = false;
       microphoneRef.current.stopRecording();
-      setButtonState('processing');
+      setButtonState('idle');
       console.log('Push-to-talk deactivated');
       setTimeout(() => {
         if (!isPTTActiveRef.current) {
@@ -90,18 +90,12 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
     }
   };
 
-  const handleMouseLeave = () => {
-    if (isPTTActiveRef.current && microphoneRef.current) {
-      isPTTActiveRef.current = false;
-      microphoneRef.current.stopRecording();
-      setButtonState('processing');
-      console.log('Push-to-talk deactivated');
-      setTimeout(() => {
-        if (!isPTTActiveRef.current) {
-          setButtonState('idle');
-        }
-      }, 100);
-    }
+  const startHold = () => {
+    handleMouseDown(); // Start recording
+  };
+
+  const stopHold = () => {
+    handleMouseUp(); // Stop recording
   };
 
   const getButtonStyles = () => {
@@ -150,54 +144,14 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
     }
   }, [isTyping, isLoading, isVisible]);
 
-  const handleTouchStart = () => {
-    if (!isPTTActiveRef.current && microphoneRef.current && !isTyping && !isLoading) {
-      isPTTActiveRef.current = true;
-      microphoneRef.current.startRecording();
-      setButtonState('recording');
-      setIsPTTActiveRef(true);
-
-      console.log('Push-to-talk activated');
-
-      // Keep function running while touching
-      holdTimeoutRef.current = setTimeout(() => {
-        if (isPTTActiveRef.current) {
-          console.log('Still holding...');
-        }
-      }, 100);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (isPTTActiveRef.current && microphoneRef.current) {
-      isPTTActiveRef.current = false;
-      microphoneRef.current.stopRecording();
-      setButtonState('processing');
-      setIsPTTActiveRef(false);
-
-      console.log('Push-to-talk deactivated');
-
-      // Stop any ongoing touch function
-      clearTimeout(holdTimeoutRef.current);
-
-      // Reset to idle state after short delay
-      setTimeout(() => {
-        if (!isPTTActiveRef.current) {
-          setButtonState('idle');
-        }
-      }, 200);
-    }
-  };
-
   return (
     <button
       className="ptt-button"
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleMouseDown}  // Start recording
-      onTouchEnd={handleMouseUp}      // Stop recording
-      onTouchCancel={handleMouseUp}   // Ensure cleanup on touch cancel
+      onTouchStart={startHold}
+      onTouchEnd={stopHold}
+      onTouchCancel={stopHold}
       style={getButtonStyles()}
       dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
       disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
