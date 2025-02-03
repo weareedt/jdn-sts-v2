@@ -182,7 +182,7 @@ export default function ExperienceWrapper() {
           className="greeting"
           style={{
             position: 'fixed',
-            top: '20vh',
+            top: '15vh',
             left: 0,
             width: '100%',
             height: '10vh',
