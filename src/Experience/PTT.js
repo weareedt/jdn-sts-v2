@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Microphone from './Microphone.js';
+import e from 'express';
 
 export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, setIsTyping, isLoading, setIsLoading, isVisible }) {
   const microphoneRef = useRef(null);
   const isPTTActiveRef = useRef(false);
   const [buttonState, setButtonState] = useState('idle');
-  const intervalRef = useRef(null);
+  const touchStartRef = useRef(null);
 
   const icons = {
     idle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -73,6 +74,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       setButtonState('recording');
       console.log('Push-to-talk activated');
       setIsPTTActiveRef(true);
+      touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
   };
 
@@ -96,6 +98,19 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
 
   const stopHold = () => {
     handleMouseUp(); // Stop recording
+  };
+
+
+  const handleTouchMove = (e) => {
+    if (isPTTActiveRef.current && touchStartRef.current) {
+      const moveX = Math.abs(e.touches[0].clientX - touchStartRef.current.x);
+      const moveY = Math.abs(e.touches[0].clientY - touchStartRef.current.y);
+
+      const movementThreshold = 10; // Allow small finger movements (10px)
+      if (moveX > movementThreshold || moveY > movementThreshold) {
+        console.log('Finger moved but still recording');
+      }
+    }
   };
 
   const getButtonStyles = () => {
@@ -152,6 +167,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       onTouchStart={startHold}
       onTouchEnd={stopHold}
       onTouchCancel={stopHold}
+      onTouchMove={handleTouchMove}
       style={getButtonStyles()}
       dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
       disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}

@@ -94,59 +94,44 @@ export default function ExperienceWrapper() {
 
           console.log('queryLLM: LLM response received:', response.response.text);
 
-          const typeWriter = (text) => {
+          const typeWriter = (text, charTime) => {
             let index = 0;
-            let accumulatedText = ''; // Store the response locally
+            let accumulatedText = '';
             setIsTyping(true);
             setLlmResponse('');
 
             const interval = setInterval(() => {
               if (index < text.length) {
-                accumulatedText += text[index]; // Append to the local variable
-                setLlmResponse(accumulatedText); // Update state less frequently
+                accumulatedText += text[index];
+                setLlmResponse(accumulatedText);
                 index++;
               } else {
                 clearInterval(interval);
                 setTimeout(() => setIsTyping(false), 100);
               }
-            }, 50);
+            }, charTime); // Use dynamic time per character
           };
 
           // Step 2: Fetch TTS audio for the LLM response
-          console.log(`queryLLM: Fetching TTS audio for response: "${response.response.text}"`);
-          const ttsResponse = await fetch(
-            'https://jdn-relay.hiroshiaki.online:3001/api/tts',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ text: response.response.text }),
-            }
-          );
+          try   {
+            const { audio } = await ProxyService.TTS(response.response.text);
 
-          if (!ttsResponse.ok) {
-            const errorDetails = await ttsResponse.json().catch(() => ({}));
-            console.error('queryLLM: TTS service error response:', errorDetails);
-            throw new Error(`TTS service error: ${errorDetails.message || 'Unknown error occurred'}`);
+            // Wait for audio to start and get duration
+            const duration = await AudioService.playAudio(audio);
+
+            // Calculate dynamic typing speed based on speech duration
+            const text = response.response.text;
+            const averageCharTime = duration / text.length; // Time per character
+            typeWriter(text, averageCharTime);
+
+          } catch (ttsError) {
+            console.error('Error fetching or playing TTS audio:', ttsError);
+            toast.error('Failed to fetch or play the TTS audio. Please try again.');
           }
 
           console.log('queryLLM: TTS fetch response received');
 
-          // Step 3: Parse the TTS response
-          const { audio } = await ttsResponse.json();
-          if (!audio) {
-            throw new Error('TTS response missing audio data');
-          }
-          console.log('queryLLM: TTS audio data extracted');
-
-          // Step 4: Play the TTS audio
-          console.log('queryLLM: Playing TTS audio');
-          await AudioService.playAudio(audio);
-          typeWriter(response.response.text);
-
           // Reset PTT state
-          console.log('queryLLM: Resetting PTT state');
           setIsPTTActiveRef(false);
         } catch (error) {
           console.error('queryLLM: Error occurred during LLM query or TTS handling:', error);
