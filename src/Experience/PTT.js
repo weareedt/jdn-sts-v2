@@ -73,7 +73,6 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       setButtonState('recording');
       console.log('Push-to-talk activated');
       setIsPTTActiveRef(true);
-      touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
   };
 
@@ -166,7 +165,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       onTouchStart={startHold}
       onTouchEnd={stopHold}
       onTouchCancel={stopHold}
-      onTouchMove={handleTouchMove}
+      // onTouchMove={handleTouchMove}
       style={getButtonStyles()}
       dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
       disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
