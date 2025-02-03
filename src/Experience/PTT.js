@@ -130,15 +130,11 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
         return {
           ...baseStyles,
           backgroundColor: '#7C3AED',
-          animation: 'spin 2s linear infinite',
-          ...(!isVisible && { right: '-10px' }),
         };
       case 'typing':
         return {
           ...baseStyles,
           backgroundColor: '#7C3AED',
-          animation: 'spin 2s linear infinite',
-          ...(!isVisible && { right: '-10px' }),
         };
       default:
         return baseStyles;
@@ -146,14 +142,12 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   };
 
   useEffect(() => {
-    console.log('isTyping value:', isTyping || isLoading);
-    if (isTyping || isLoading) {
+     if (isTyping || isLoading) {
       setButtonState('typing');
-    }
-    else {
+    } else {
       setButtonState('idle');
     }
-  }, [isTyping, isLoading]);
+  }, [isTyping, isLoading, isVisible]);
 
 
   return (
@@ -162,6 +156,8 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleMouseDown}
+      onTouchEnd={handleMouseUp}
       style={getButtonStyles()}
       dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
       disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
