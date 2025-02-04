@@ -235,11 +235,11 @@ export default function ExperienceWrapper() {
             maxHeight: '60vh',
             overflowY: 'auto',
             color: 'white',
-            fontSize: '1.2rem',
-            lineHeight: '1.6',
+            lineHeight: '1',
             textAlign: 'center',
             borderRadius: '10px',
             zIndex: 1000,
+            overflow: 'hidden', // Completely remove the scrollbars
           }}
         >
           {llmResponse}
@@ -300,17 +300,19 @@ export default function ExperienceWrapper() {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="50%" // Make SVG scale inside the button
+            height="50%"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
           >
             <path
-              d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"></path>
+              d="M3 12c0 4.97 4.03 9 9 9 1.66 0 3.22-.41 4.58-1.13L21 21l-1.87-4.42C20.59 15.22 21 13.66 21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9z"
+            ></path>
           </svg>
         </button>
+
       </div>
       <ToastContainer />
     </>
