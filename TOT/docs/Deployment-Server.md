@@ -228,3 +228,57 @@ Ensure that all services are running correctly and that the website is accessibl
     ```
 
 Your React application is now fully deployed and secured with SSL.
+
+# Step 7: Deploy the backend server
+
+## Description:
+Ensure that all services are connecting through apis and bypassing CORS in development
+
+## Instructions:
+
+1. Open file ssl conf file from certbot and add this line to the file
+
+   ```bash
+   sudo nano /etc/apache2/sites-available/myapp-ssl.conf
+   ```
+   
+   ```apacheconf
+   # Proxy settings to forward API requests to Express backend
+    ProxyPreserveHost On
+    ProxyRequests Off
+    ProxyPass /api http://127.0.0.1:3001/api retry=0 timeout=60 Keepalive=On
+    ProxyPassReverse /api http://127.0.0.1:3001/api
+   ```
+
+2. Enable required module and restart the apache
+
+   ```bash
+   sudo a2enmod proxy proxy_http ssl rewrite
+   sudo systemctl restart apache
+   ```
+3. Install ```pm2```
+   ```bash
+   npm install -g pm2
+   ```
+4. Make sure all the certs are in correct folder
+
+   ```bash
+   cd /var/www/myapp/server
+   openssl req -nodes -new -x509 -keyout server.key -out server.crt
+   ```
+
+5. Run backend application using ```pm2```
+
+   ```bash
+   cd /var/www/myapp/server
+   pm2 start server/index.js --name backend
+   pm2 save
+   pm2 startup
+   ```
+6. Make sure ```pm2``` running properly
+
+   ```bash
+   pm2 status
+   pm2 logs backend
+   ```
+   
