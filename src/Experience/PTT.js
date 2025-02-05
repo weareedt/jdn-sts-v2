@@ -30,41 +30,6 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
         </svg>`
   };
 
-  useEffect(() => {
-    // Add CSS for rotation animation
-    const style = document.createElement('style');
-    style.textContent = `
-            @keyframes spin {
-                from { transform: translateX(-50%) rotate(0deg); }
-                to { transform: translateX(-50%) rotate(360deg); }
-            }
-        `;
-    document.head.appendChild(style);
-
-    // Initialize microphone
-    microphoneRef.current = new Microphone(setTranscription);
-
-    // Handle page visibility change
-    const handleVisibilityChange = () => {
-      if (document.hidden && isPTTActiveRef.current) {
-        isPTTActiveRef.current = false;
-        if (microphoneRef.current) {
-          microphoneRef.current.stopRecording();
-        }
-        setButtonState('idle');
-        console.log('Push-to-talk deactivated due to page visibility change');
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (microphoneRef.current && microphoneRef.current.audioContext) {
-        microphoneRef.current.audioContext.close();
-      }
-    };
-  }, []);
 
   const handleMouseDown = () => {
     if (!isPTTActiveRef.current && microphoneRef.current && !microphoneRef.current.isProcessing && !isTyping && !isLoading) {

@@ -6,6 +6,84 @@ import AudioService from '../services/AudioService.js';
 export default function TextInput({ setTranscription, setLlmResponse, isTyping, setIsTyping, isLoading, setIsLoading }) {
   const [message, setMessage] = useState('');
 
+  // const sendMessage = async () => {
+  //   if (!message.trim() || isLoading || isTyping) return; // Prevent sending during typing or loading
+  //
+  //   setIsLoading(true);
+  //
+  //   try {
+  //     // Step 1: Stop audio
+  //     try {
+  //       await AudioService.stopAudio();
+  //     } catch (audioStopError) {
+  //       console.error('Error stopping audio:', audioStopError);
+  //       toast.error('Failed to stop the audio. Please try again.');
+  //       return; // Exit early if stopping audio fails
+  //     }
+  //
+  //     // Step 2: Update transcription and get LLM response
+  //     let response;
+  //     try {
+  //       setTranscription(message);
+  //       response = await ProxyService.post(message);
+  //       console.log('TextInput LLM response:', response.response.text);
+  //     } catch (llmError) {
+  //       console.error('Error getting LLM response:', llmError);
+  //       toast.error('Failed to get the response from the server. Please try again.');
+  //       return; // Exit early if LLM response fails
+  //     }
+  //
+  //     // Step 3: Typewriter effect for LLM response
+  //     const typeWriter = (text, charTime) => {
+  //       let index = 0;
+  //       let accumulatedText = '';
+  //       setIsTyping(true);
+  //       setLlmResponse('');
+  //
+  //       const interval = setInterval(() => {
+  //         if (index < text.length) {
+  //           accumulatedText += text[index];
+  //           setLlmResponse(accumulatedText);
+  //           index++;
+  //         } else {
+  //           clearInterval(interval);
+  //           setTimeout(() => setIsTyping(false), 100);
+  //         }
+  //       }, charTime); // Use dynamic time per character
+  //     };
+  //
+  //
+  //     // Step 4: Fetch TTS audio and play it
+  //     try {
+  //       const { audio } = await ProxyService.TTS(response.response.text);
+  //
+  //       // Wait for audio to start and get duration
+  //       const duration = await AudioService.playAudio(audio);
+  //
+  //       // Calculate dynamic typing speed based on speech duration
+  //       const text = response.response.text;
+  //       const averageCharTime = duration / text.length; // Time per character
+  //       typeWriter(text, averageCharTime);
+  //
+  //     } catch (ttsError) {
+  //       console.error('Error fetching or playing TTS audio:', ttsError);
+  //       toast.error('Failed to fetch or play the TTS audio. Please try again.');
+  //     }
+  //
+  //
+  //     // Step 5: Clear input after successful send
+  //     setMessage('');
+  //     const textarea = document.querySelector('textarea'); // Select the textarea
+  //     if (textarea) {
+  //       textarea.style.height = '48px'; // Reset height to initial value
+  //     }
+  //   } catch (error) {
+  //     console.error('Unexpected error:', error);
+  //     toast.error('An unexpected error occurred. Please try again.');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const sendMessage = async () => {
     if (!message.trim() || isLoading || isTyping) return; // Prevent sending during typing or loading
 
@@ -18,7 +96,6 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
       } catch (audioStopError) {
         console.error('Error stopping audio:', audioStopError);
         toast.error('Failed to stop the audio. Please try again.');
-        return; // Exit early if stopping audio fails
       }
 
       // Step 2: Update transcription and get LLM response
@@ -34,7 +111,7 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
       }
 
       // Step 3: Typewriter effect for LLM response
-      const typeWriter = (text, charTime) => {
+      const typeWriter = (text, charTime = 50) => { // Default speed if TTS fails
         let index = 0;
         let accumulatedText = '';
         setIsTyping(true);
@@ -49,11 +126,10 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
             clearInterval(interval);
             setTimeout(() => setIsTyping(false), 100);
           }
-        }, charTime); // Use dynamic time per character
+        }, charTime);
       };
 
-
-      // Step 4: Fetch TTS audio and play it
+      // Step 4: Try to Fetch TTS Audio and Play
       try {
         const { audio } = await ProxyService.TTS(response.response.text);
 
@@ -67,15 +143,17 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
 
       } catch (ttsError) {
         console.error('Error fetching or playing TTS audio:', ttsError);
-        toast.error('Failed to fetch or play the TTS audio. Please try again.');
-      }
+        toast.error('Failed to fetch or play the TTS audio. Displaying text only.');
 
+        // **Fallback: Ensure typewriter effect runs even if TTS fails**
+        typeWriter(response.response.text, 50); // Use default speed
+      }
 
       // Step 5: Clear input after successful send
       setMessage('');
-      const textarea = document.querySelector('textarea'); // Select the textarea
+      const textarea = document.querySelector('textarea');
       if (textarea) {
-        textarea.style.height = '48px'; // Reset height to initial value
+        textarea.style.height = '48px';
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -84,6 +162,7 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
       setIsLoading(false);
     }
   };
+
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isLoading && !isTyping) {
@@ -101,8 +180,8 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
         bottom: '100px',
         left: '0%',
         width: '100%',
-        paddingRight: '7px',
-        paddingLeft: '30px',
+        paddingRight: '1.8vw',
+        paddingLeft: '2vw',
       }}
     >
       <textarea
@@ -138,8 +217,13 @@ export default function TextInput({ setTranscription, setLlmResponse, isTyping, 
       <button
         onClick={sendMessage}
         style={{
-          width: '60px',
-          height: '60px',
+          top: '38vh', // Adjusted to viewport height for responsiveness
+          width: '10vw', // Responsive width based on viewport width
+          height: '10vw', // Responsive height based on viewport width
+          maxWidth: '65px', // Ensuring it doesn't get too large on big screens
+          maxHeight: '65px',
+          minWidth: '45px', // Ensuring it doesn't get too small on small screens
+          minHeight: '45px',
           padding: 0,
           backgroundColor: isTyping || isLoading ? '#6D28D9' : '#8B5CF6',
           color: 'white',
