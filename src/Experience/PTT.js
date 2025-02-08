@@ -9,26 +9,34 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   const startTimeRef = useRef(null);
 
   const icons = {
-    idle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-        </svg>`,
-    recording: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-        </svg>`,
-    processing: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 6v6l4 2"></path>
-            <circle cx="12" cy="12" r="10"></circle>
-        </svg>`,
-    typing: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 6v6l4 2"></path>
-            <circle cx="12" cy="12" r="10"></circle>
-        </svg>`
+    idle: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="23"></line>
+        <line x1="8" y1="23" x2="16" y2="23"></line>
+      </svg>
+    ),
+    recording: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="23"></line>
+        <line x1="8" y1="23" x2="16" y2="23"></line>
+      </svg>
+    ),
+    processing: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 6v6l4 2"></path>
+        <circle cx="12" cy="12" r="10"></circle>
+      </svg>
+    ),
+    typing: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 6v6l4 2"></path>
+        <circle cx="12" cy="12" r="10"></circle>
+      </svg>
+    )
   };
 
   useEffect(() => {
@@ -45,7 +53,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
     isPTTActiveRef.current = true;
     microphoneRef.current.startRecording();
     setButtonState('recording');
-    console.log('Push-to-talk activated');
+    console.log('Mouse pressed: Push-to-talk activated');
     setIsPTTActiveRef(true);
   };
 
@@ -62,7 +70,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
 
       microphoneRef.current.stopRecording();
       setButtonState('idle');
-      console.log('Push-to-talk deactivated');
+      console.log('Mouse released: Push-to-talk deactivated');
 
       setTimeout(() => {
         if (!isPTTActiveRef.current) {
@@ -73,10 +81,12 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   };
 
   const startHold = () => {
+    console.log('Touch start: Button pressed');
     handleMouseDown();
   };
 
   const stopHold = () => {
+    console.log('Touch end: Button released');
     handleMouseUp();
   };
 
@@ -130,8 +140,8 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       onTouchCancel={stopHold}
       onContextMenu={(e) => e.preventDefault()} // Prevent right-click issues
       style={getButtonStyles()}
-      dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
-      disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
-    />
+    >
+      {icons[buttonState]} {/* Render the icon based on the button state */}
+    </button>
   );
 }
