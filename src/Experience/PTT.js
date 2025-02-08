@@ -6,6 +6,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   const isPTTActiveRef = useRef(false);
   const [buttonState, setButtonState] = useState('idle');
   const touchStartRef = useRef(null);
+  const startTimeRef = useRef(null);
 
   const icons = {
     idle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -31,35 +32,8 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   };
 
   useEffect(() => {
-    // Add CSS for rotation animation
-    const style = document.createElement('style');
-    style.textContent = `
-            @keyframes spin {
-                from { transform: translateX(-50%) rotate(0deg); }
-                to { transform: translateX(-50%) rotate(360deg); }
-            }
-        `;
-    document.head.appendChild(style);
-
-    // Initialize microphone
     microphoneRef.current = new Microphone(setTranscription);
-
-    // Handle page visibility change
-    const handleVisibilityChange = () => {
-      if (document.hidden && isPTTActiveRef.current) {
-        isPTTActiveRef.current = false;
-        if (microphoneRef.current) {
-          microphoneRef.current.stopRecording();
-        }
-        setButtonState('idle');
-        console.log('Push-to-talk deactivated due to page visibility change');
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (microphoneRef.current && microphoneRef.current.audioContext) {
         microphoneRef.current.audioContext.close();
       }
@@ -67,21 +41,29 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   }, []);
 
   const handleMouseDown = () => {
-    if (!isPTTActiveRef.current && microphoneRef.current && !microphoneRef.current.isProcessing && !isTyping && !isLoading) {
-      isPTTActiveRef.current = true;
-      microphoneRef.current.startRecording();
-      setButtonState('recording');
-      console.log('Push-to-talk activated');
-      setIsPTTActiveRef(true);
-    }
+    startTimeRef.current = new Date().getTime(); // Record start time
+    isPTTActiveRef.current = true;
+    microphoneRef.current.startRecording();
+    setButtonState('recording');
+    console.log('Push-to-talk activated');
+    setIsPTTActiveRef(true);
   };
 
   const handleMouseUp = () => {
     if (isPTTActiveRef.current && microphoneRef.current) {
       isPTTActiveRef.current = false;
+      const recordingDuration = new Date().getTime() - startTimeRef.current;
+
+      if (recordingDuration < 500) {  // Ignore if recording is too short
+        console.log("Recording too short, ignoring.");
+        setButtonState('idle');
+        return;
+      }
+
       microphoneRef.current.stopRecording();
       setButtonState('idle');
       console.log('Push-to-talk deactivated');
+
       setTimeout(() => {
         if (!isPTTActiveRef.current) {
           setButtonState('idle');
@@ -91,24 +73,11 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
   };
 
   const startHold = () => {
-    handleMouseDown(); // Start recording
+    handleMouseDown();
   };
 
   const stopHold = () => {
-    handleMouseUp(); // Stop recording
-  };
-
-
-  const handleTouchMove = (e) => {
-    if (isPTTActiveRef.current && touchStartRef.current) {
-      const moveX = Math.abs(e.touches[0].clientX - touchStartRef.current.x);
-      const moveY = Math.abs(e.touches[0].clientY - touchStartRef.current.y);
-
-      const movementThreshold = 10; // Allow small finger movements (10px)
-      if (moveX > movementThreshold || moveY > movementThreshold) {
-        console.log('Finger moved but still recording');
-      }
-    }
+    handleMouseUp();
   };
 
   const getButtonStyles = () => {
@@ -135,22 +104,16 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       case 'recording':
         return { ...baseStyles, backgroundColor: '#6D28D9', transform: 'scale(0.95)' };
       case 'processing':
-        return {
-          ...baseStyles,
-          backgroundColor: '#7C3AED',
-        };
+        return { ...baseStyles, backgroundColor: '#7C3AED' };
       case 'typing':
-        return {
-          ...baseStyles,
-          backgroundColor: '#7C3AED',
-        };
+        return { ...baseStyles, backgroundColor: '#7C3AED' };
       default:
         return baseStyles;
     }
   };
 
   useEffect(() => {
-     if (isTyping || isLoading) {
+    if (isTyping || isLoading) {
       setButtonState('typing');
     } else {
       setButtonState('idle');
@@ -165,7 +128,7 @@ export default function PTT({ setTranscription, setIsPTTActiveRef, isTyping, set
       onTouchStart={startHold}
       onTouchEnd={stopHold}
       onTouchCancel={stopHold}
-      // onTouchMove={handleTouchMove}
+      onContextMenu={(e) => e.preventDefault()} // Prevent right-click issues
       style={getButtonStyles()}
       dangerouslySetInnerHTML={{ __html: icons[buttonState] }}
       disabled={buttonState === 'typing' || buttonState === 'processing' || isTyping || isLoading}
